@@ -28,4 +28,16 @@ class ItemRepositoryImpl implements ItemRepository {
   Future<List<Item>> getAllItems() async {
     return await localDataSource.getAllItems();
   }
+
+  @override
+  Future<void> deleteItem(String code) => localDataSource.deleteItem(code);
+
+  @override
+  Future<void> updateItem(Item item) => localDataSource.updateItem(ItemModel(
+        code: item.code,
+        label: item.label,
+        description: item.description,
+        date: item.date,
+        quantity: item.quantity,
+      ));
 }

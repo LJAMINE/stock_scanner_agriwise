@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_stock_scanner/features/import/data/data_sources/item_local_datasource.dart';
+import 'package:flutter_stock_scanner/features/import/domain/usecases/delete_item.dart';
+import 'package:flutter_stock_scanner/features/import/domain/usecases/update_item.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_event.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/item_page.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/import_page.dart';
@@ -23,6 +25,8 @@ class MyApp extends StatelessWidget {
     final repository = ItemRepositoryImpl(localDataSource: localDataSource);
     final importItemsUsecase = ImportItems(repository);
     final getAllItemsUsecase = GetAllItems(repository);
+    final updateItemUsecase = UpdateItem(repository);
+    final deleteItemUsecase = DeleteItem(repository);
 
     return MultiBlocProvider(
       providers: [
@@ -30,6 +34,8 @@ class MyApp extends StatelessWidget {
           create: (_) => ItemBloc(
             importItems: importItemsUsecase,
             getAllItems: getAllItemsUsecase,
+            updateItemUseCase: updateItemUsecase,
+            deleteItemUseCase: deleteItemUsecase,
           )..add(GetAllItemsEvent()), // Load items on start
         ),
       ],

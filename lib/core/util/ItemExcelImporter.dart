@@ -44,10 +44,9 @@ class ItemExcelImporter {
 
         final code = row[codeIdx]?.value?.toString() ?? '';
         final label = row[labelIdx]?.value?.toString() ?? '';
-        final description = row[descIdx]?.value?.toString() ?? '';
-        final date = row[dateIdx]?.value?.toString() ?? '';
-        final quantity =
-            int.tryParse(row[qtyIdx]?.value?.toString() ?? '0') ?? 0;
+        final description = '';
+        final date = '';
+        final quantity = 0;
 
         if (code.isEmpty || label.isEmpty) continue;
 

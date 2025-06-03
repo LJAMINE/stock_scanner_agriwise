@@ -3,8 +3,6 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ItemLocalDataSource {
-
-  
   static final ItemLocalDataSource _instance = ItemLocalDataSource._internal();
 
   factory ItemLocalDataSource() => _instance;
@@ -52,5 +50,25 @@ class ItemLocalDataSource {
     final dbClient = await db;
     final maps = await dbClient.query('items');
     return maps.map((map) => ItemModel.fromMap(map)).toList();
+  }
+
+  Future<void> deleteItem(String code) async {
+    final dbClient = await db;
+    await dbClient.delete(
+      'items',
+      where: 'code = ?',
+      whereArgs: [code],
+    );
+  }
+
+  Future<void> updateItem(ItemModel item) async {
+    final dbClient = await db;
+    await dbClient.update(
+      'items',
+      item.toMap(),
+      where: 'code = ?',
+      whereArgs: [item.code],
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 }

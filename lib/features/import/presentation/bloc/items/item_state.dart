@@ -31,3 +31,8 @@ class ItemError extends ItemState {
   @override
   List<Object?> get props => [message];
 }
+
+
+class ItemUpdated extends ItemState {}
+
+class ItemDeleted extends ItemState {}
