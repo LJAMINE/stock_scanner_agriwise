@@ -40,4 +40,10 @@ class ItemRepositoryImpl implements ItemRepository {
         date: item.date,
         quantity: item.quantity,
       ));
+
+
+      @override
+  Future<Item?> getItemByCode(String code) async {
+    return await localDataSource.getItemByCode(code);
+  }
 }

@@ -33,3 +33,8 @@ class DeleteItemEvent extends ItemEvent {
   @override
   List<Object?> get props => [code];
 }
+
+class SearchItemByCodeEvent extends ItemEvent {
+  final String code;
+  const SearchItemByCodeEvent(this.code);
+}

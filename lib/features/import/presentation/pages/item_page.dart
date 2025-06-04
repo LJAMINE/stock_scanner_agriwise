@@ -5,18 +5,29 @@ import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/it
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_event.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_state.dart';
 
-class ItemPage extends StatelessWidget {
+class ItemPage extends StatefulWidget {
   const ItemPage({super.key});
 
+  @override
+  State<ItemPage> createState() => _ItemPageState();
+}
+
+class _ItemPageState extends State<ItemPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Items List'),
+        title: const Text('Item List'),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
         actions: [
           IconButton(
             icon: const Icon(Icons.upload_file),
             onPressed: () => Navigator.pushNamed(context, '/import'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.scanner),
+            onPressed: () => Navigator.pushNamed(context, '/scanner'),
           ),
         ],
       ),
@@ -61,7 +72,9 @@ class ItemPage extends StatelessWidget {
                             builder: (_) => EditItemDialog(item: item),
                           );
                           if (updated != null) {
-                            context.read<ItemBloc>().add(UpdateItemEvent(updated));
+                            context
+                                .read<ItemBloc>()
+                                .add(UpdateItemEvent(updated));
                           }
                         },
                       ),
@@ -124,8 +137,10 @@ class _EditItemDialogState extends State<EditItemDialog> {
   void initState() {
     super.initState();
     labelController = TextEditingController(text: widget.item.label);
-    descriptionController = TextEditingController(text: widget.item.description);
-    quantityController = TextEditingController(text: widget.item.quantity.toString());
+    descriptionController =
+        TextEditingController(text: widget.item.description);
+    quantityController =
+        TextEditingController(text: widget.item.quantity.toString());
   }
 
   @override

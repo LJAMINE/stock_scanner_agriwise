@@ -1,4 +1,5 @@
 import 'package:flutter_stock_scanner/features/import/data/models/item_model.dart';
+import 'package:flutter_stock_scanner/features/import/domain/entities/item.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -70,5 +71,18 @@ class ItemLocalDataSource {
       whereArgs: [item.code],
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+  }
+
+  Future<Item?> getItemByCode(String code)async{
+    final dbClient = await db;
+    final maps = await dbClient.query(
+      'items',
+      where: 'code = ?',
+      whereArgs: [code],
+    );
+    if (maps.isNotEmpty) {
+      return ItemModel.fromMap(maps.first);
+    }
+    return null;
   }
 }

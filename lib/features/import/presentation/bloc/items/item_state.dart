@@ -32,7 +32,16 @@ class ItemError extends ItemState {
   List<Object?> get props => [message];
 }
 
-
 class ItemUpdated extends ItemState {}
 
 class ItemDeleted extends ItemState {}
+
+class ItemFound extends ItemState {
+  final Item item;
+  const ItemFound(this.item);
+}
+
+class ItemNotFound extends ItemState {
+  final String code;
+  const ItemNotFound(this.code);
+}

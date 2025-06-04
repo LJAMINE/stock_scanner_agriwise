@@ -25,7 +25,8 @@ class _ImportPageState extends State<ImportPage> {
       _previewItems = [];
     });
 
-    final (items, err) = await ItemExcelImporter.pickAndParseExcel();
+    final (items, err) = await ItemExcelImporter.pickAndParseExcel(); 
+
     setState(() {
       _loading = false;
       _error = err;
@@ -116,7 +117,8 @@ class _ImportPageState extends State<ImportPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Import items from excel'),
+          title: const Text('import excel or add manually'),
+          backgroundColor: Colors.blue,
           centerTitle: true,
         ),
         body: Padding(
@@ -130,9 +132,10 @@ class _ImportPageState extends State<ImportPage> {
                       icon: const Icon(Icons.upload_file),
                       label: const Text("Choose Excel File"),
                     ),
+                    SizedBox(height: 16),
                     ElevatedButton.icon(
                       onPressed: () => _showManualAddDialog(),
-                      label: const Text("Add manually"),
+                      label: const Text("Add items manually"),
                       icon: const Icon(Icons.add),
                     ),
                     if (_error != null) ...[
