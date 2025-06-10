@@ -8,5 +8,8 @@ abstract class ItemRepository {
   Future<void> updateItem(Item item);
 
   Future<void> deleteItem(String code);
+
   Future<Item?> getItemByCode(String code);
+
+  Future<String> exportItemsToExcel(List<Item> items);
 }

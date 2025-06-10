@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_stock_scanner/features/import/domain/usecases/delete_item.dart';
+import 'package:flutter_stock_scanner/features/import/domain/usecases/export_items_to_excel.dart';
 import 'package:flutter_stock_scanner/features/import/domain/usecases/get_all_items.dart';
 import 'package:flutter_stock_scanner/features/import/domain/usecases/get_item_by_code.dart';
 import 'package:flutter_stock_scanner/features/import/domain/usecases/import_items.dart';
@@ -13,6 +14,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
   final UpdateItem updateItemUseCase;
   final DeleteItem deleteItemUseCase;
   final GetItemByCode getItemByCode;
+  final ExportItemsToExcel exportItemsToExcelUseCase;
 
   ItemBloc({
     required this.importItems,
@@ -20,6 +22,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     required this.updateItemUseCase,
     required this.deleteItemUseCase,
     required this.getItemByCode,
+    required this.exportItemsToExcelUseCase,
   }) : super(ItemInitial()) {
     on<ImportItemsEvent>((event, emit) async {
       emit(ItemLoading());
@@ -84,18 +87,16 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
         emit(ItemError(e.toString()));
       }
     });
-    // on<SearchItemByCodeEvent>((event, emit) async {
-    //   emit(ItemLoading());
-    //   try {
-    //     final item = await getItemByCode(event.code);
-    //     if (item != null) {
-    //       emit(ItemFound(item));
-    //     } else {
-    //       emit(ItemNotFound(event.code));
-    //     }
-    //   } catch (e) {
-    //     emit(ItemError(e.toString()));
-    //   }
-    // });
+    
+    
+    
+    on<ExportItemsEvent>((event, emit) async {
+      try {
+        await exportItemsToExcelUseCase(event.items);
+        emit(ExportSuccess("Export completed successfully!"));
+      } catch (e) {
+        emit(ExportFailure(e.toString()));
+      }
+    });
   }
 }

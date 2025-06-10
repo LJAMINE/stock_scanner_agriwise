@@ -45,3 +45,16 @@ class ItemNotFound extends ItemState {
   final String code;
   const ItemNotFound(this.code);
 }
+
+class ExportSuccess extends ItemState {
+  final String filePath;
+  const ExportSuccess(this.filePath);
+
+  @override
+  List<Object?> get props => [filePath];
+}
+
+class ExportFailure extends ItemState {
+  final String message;
+  const ExportFailure(this.message);
+}

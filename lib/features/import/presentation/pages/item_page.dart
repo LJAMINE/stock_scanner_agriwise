@@ -13,6 +13,8 @@ class ItemPage extends StatefulWidget {
 }
 
 class _ItemPageState extends State<ItemPage> {
+  List<Item> _items = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,6 +30,13 @@ class _ItemPageState extends State<ItemPage> {
           IconButton(
             icon: const Icon(Icons.scanner),
             onPressed: () => Navigator.pushNamed(context, '/scanner'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.download),
+            onPressed: () {
+              context.read<ItemBloc>().add(ExportItemsEvent(_items));
+            },
+            tooltip: 'Export to Excel',
           ),
         ],
       ),
@@ -45,11 +54,23 @@ class _ItemPageState extends State<ItemPage> {
             ScaffoldMessenger.of(context)
                 .showSnackBar(const SnackBar(content: Text("Item deleted!")));
           }
+          if (state is ExportSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text(
+                      'File saved in Download folder:\n${state.filePath}')),
+            );
+          }
+          if (state is ExportFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Export failed: ${state.message}")));
+          }
         },
         builder: (context, state) {
           if (state is ItemLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is ItemsLoaded) {
+            _items = state.items;
             final items = state.items;
             if (items.isEmpty) {
               return const Center(child: Text("No items found."));

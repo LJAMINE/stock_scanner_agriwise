@@ -38,3 +38,8 @@ class SearchItemByCodeEvent extends ItemEvent {
   final String code;
   const SearchItemByCodeEvent(this.code);
 }
+
+class ExportItemsEvent extends ItemEvent {
+  final List<Item> items;
+  const ExportItemsEvent(this.items);
+}

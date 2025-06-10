@@ -109,7 +109,7 @@ class _QtyDialogState extends State<QtyDialog> {
         TextButton(
           onPressed: () {
             Navigator.pop(context);
-            Navigator.pop(context);
+            // Navigator.pop(context);
           },
           child: const Text('Cancel'),
         ),
