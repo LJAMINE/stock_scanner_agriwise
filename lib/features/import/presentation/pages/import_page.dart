@@ -25,7 +25,7 @@ class _ImportPageState extends State<ImportPage> {
       _previewItems = [];
     });
 
-    final (items, err) = await ItemExcelImporter.pickAndParseExcel(); 
+    final (items, err) = await ItemExcelImporter.pickAndParseExcel();
 
     setState(() {
       _loading = false;
@@ -83,12 +83,14 @@ class _ImportPageState extends State<ImportPage> {
                     );
                   } else {
                     // Add new
-                    _previewItems.add(Item(
-                        code: code,
-                        label: label,
-                        description: "",
-                        date: "",
-                        quantity: 0));
+                    _previewItems.add(
+                      Item(
+                          code: code,
+                          label: label,
+                          description: "",
+                          date: "",
+                          quantity: 0),
+                    );
                   }
                 });
               }

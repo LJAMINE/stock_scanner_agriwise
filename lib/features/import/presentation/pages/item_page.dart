@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_stock_scanner/core/util/editItemDialog.dart';
 import 'package:flutter_stock_scanner/core/util/scan_mode_prefs.dart';
+import 'package:flutter_stock_scanner/core/util/startScan.dart';
 import 'package:flutter_stock_scanner/features/import/domain/entities/item.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_bloc.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_event.dart';
@@ -67,12 +69,127 @@ class _ItemPageState extends State<ItemPage> {
               await clearScanMode();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                    content: Text(
-                        'Scan mode preference cleared! Next scan will ask again.')),
+                  content: Text(
+                      'Scan mode preference cleared! Next scan will ask again.'),
+                ),
               );
             },
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            UserAccountsDrawerHeader(
+              accountName: Text("Amine lm"),
+              accountEmail: Text("amine@gmail.com"),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Icon(Icons.person, size: 40, color: Colors.blue),
+              ),
+            ),
+            FutureBuilder(
+              future: loadScanMode(),
+              builder: (context, snapshot) {
+                String scanModeText = "Not set";
+
+                if (snapshot.hasData) {
+                  scanModeText = snapshot.data == true
+                      ? "Camera scanner"
+                      : "Hardware Scanner";
+                }
+                return ListTile(
+                  leading: Icon(Icons.settings),
+                  title: Text("scan mode: $scanModeText"),
+                  onTap: () async {
+                    bool? useCamera = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: Text("select scan mode"),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              leading: Icon(Icons.camera_alt),
+                              title: Text("Use Camera"),
+                              onTap: () => Navigator.pop(ctx, true),
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.scanner),
+                              title: Text("Use Hardware Scanner"),
+                              onTap: () => Navigator.pop(ctx, false),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+
+                    if (useCamera != null) {
+                      await saveScanMode(useCamera);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Scan mode set to ${useCamera ? "Camera" : "Hardware Scanner"}'),
+                        ),
+                      );
+                    }
+                    Navigator.pop(context); // Close drawer
+                  },
+                );
+              },
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text("Profile"),
+              subtitle: Text("View and edit your profile"),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text("Profile"),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircleAvatar(
+                          radius: 30,
+                          child: Icon(
+                            Icons.person,
+                            size: 40,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Text("Name: Amine lm"),
+                        Text("amine@gmail.com"),
+                        SizedBox(height: 10),
+                        Text("this is a demo profile"),
+                      ],
+                    ),
+                  ),
+                );
+                Navigator.pop(context);
+              },
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.info),
+              title: Text("About"),
+              subtitle: Text("Learn more about this app"),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text("About"),
+                    content: Text(
+                        "This app is a demo for managing items with barcode scanning capabilities."),
+                  ),
+                );
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
       body: BlocConsumer<ItemBloc, ItemState>(
         listener: (context, state) {
@@ -80,6 +197,7 @@ class _ItemPageState extends State<ItemPage> {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.message)));
           }
+
           // if (state is ItemUpdated) {
           //   ScaffoldMessenger.of(context)
           //       .showSnackBar(const SnackBar(content: Text("Item updated!")));
@@ -260,109 +378,6 @@ class _ItemPageState extends State<ItemPage> {
           return const SizedBox();
         },
       ),
-    );
-  }
-}
-
-Future<void> startScan(BuildContext context) async {
-  bool? useCamera = await loadScanMode();
-  if (useCamera == null) {
-    useCamera = await showScanModeDialog(context);
-    if (useCamera != null) {
-      await saveScanMode(useCamera);
-    } else {
-      // User cancelled dialog
-      return;
-    }
-  }
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => ScannerPage(useCamera: useCamera!),
-    ),
-  );
-}
-
-class EditItemDialog extends StatefulWidget {
-  final Item item;
-  const EditItemDialog({super.key, required this.item});
-
-  @override
-  State<EditItemDialog> createState() => _EditItemDialogState();
-}
-
-class _EditItemDialogState extends State<EditItemDialog> {
-  late TextEditingController labelController;
-  late TextEditingController descriptionController;
-  late TextEditingController quantityController;
-
-  @override
-  void initState() {
-    super.initState();
-    labelController = TextEditingController(text: widget.item.label);
-    descriptionController =
-        TextEditingController(text: widget.item.description);
-    quantityController =
-        TextEditingController(text: widget.item.quantity.toString());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text("Edit Item"),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              decoration: const InputDecoration(labelText: "Code"),
-              controller: TextEditingController(text: widget.item.code),
-              enabled: false,
-            ),
-            TextField(
-              controller: labelController,
-              decoration: const InputDecoration(labelText: "Label"),
-            ),
-            TextField(
-              controller: descriptionController,
-              decoration: const InputDecoration(labelText: "Description"),
-            ),
-            TextField(
-              controller: quantityController,
-              decoration: const InputDecoration(labelText: "Quantity"),
-              keyboardType: TextInputType.number,
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text("Cancel"),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            final newLabel = labelController.text.trim();
-            final newDesc = descriptionController.text.trim();
-            final newQty = int.tryParse(quantityController.text.trim()) ?? 0;
-
-            if (newLabel.isNotEmpty) {
-              // No copyWith, just construct a new Item keeping the code and date
-              Navigator.pop(
-                context,
-                Item(
-                  code: widget.item.code,
-                  label: newLabel,
-                  description: newDesc,
-                  date: widget.item.date,
-                  quantity: newQty,
-                ),
-              );
-            }
-          },
-          child: const Text("Save"),
-        ),
-      ],
     );
   }
 }
