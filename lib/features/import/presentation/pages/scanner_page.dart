@@ -7,7 +7,9 @@ import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/it
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScannerPage extends StatefulWidget {
-  const ScannerPage({super.key});
+  final bool useCamera;
+
+  const ScannerPage({super.key, required this.useCamera});
 
   @override
   State<ScannerPage> createState() => _ScannerPageState();
@@ -34,16 +36,24 @@ class _ScannerPageState extends State<ScannerPage> {
               builder: (ctx) => QtyDialog(
                   initialQty: state.item.quantity, label: state.item.label),
             );
+            if (!context.mounted) return;
             if (newQte != null) {
-              context.read<ItemBloc>().add(UpdateItemEvent(Item(
-                    code: state.item.code,
-                    label: state.item.label,
-                    description: state.item.description,
-                    date: state.item.date,
-                    quantity: newQte,
-                  )));
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text("Quantity updated!")));
+              context.read<ItemBloc>().add(
+                    UpdateItemEvent(
+                      Item(
+                        code: state.item.code,
+                        label: state.item.label,
+                        description: state.item.description,
+                        date: state.item.date,
+                        quantity: newQte,
+                      ),
+                    ),
+                  );
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Quantity updated!"),
+                ),
+              );
               Navigator.pop(context);
             }
             _isProcessing = false; // Allow next scan
@@ -51,7 +61,10 @@ class _ScannerPageState extends State<ScannerPage> {
           if (state is ItemNotFound && !_isProcessing) {
             _isProcessing = true;
             ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("item not found : ${state.code}")));
+              SnackBar(
+                content: Text("item not found : ${state.code}"),
+              ),
+            );
             _isProcessing = false;
           }
         },

@@ -6,7 +6,7 @@ class ExportItemsToExcel {
 
   ExportItemsToExcel(this.repository);
 
-  Future<void> call(List<Item> items) async {
-    await repository.exportItemsToExcel(items);
+  Future<String> call(List<Item> items) async {
+    return await repository.exportItemsToExcel(items);
   }
 }

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_stock_scanner/core/util/scan_mode_prefs.dart';
 import 'package:flutter_stock_scanner/features/import/domain/entities/item.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_bloc.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_event.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_state.dart';
+import 'package:flutter_stock_scanner/features/import/presentation/pages/scanner_page.dart';
+import 'package:open_filex/open_filex.dart';
 
 class ItemPage extends StatefulWidget {
   const ItemPage({super.key});
@@ -29,7 +32,9 @@ class _ItemPageState extends State<ItemPage> {
           ),
           IconButton(
             icon: const Icon(Icons.scanner),
-            onPressed: () => Navigator.pushNamed(context, '/scanner'),
+            onPressed: () => startScan(context),
+
+            // onPressed: () => Navigator.pushNamed(context, '/scanner'),
           ),
           IconButton(
             icon: const Icon(Icons.download),
@@ -37,6 +42,18 @@ class _ItemPageState extends State<ItemPage> {
               context.read<ItemBloc>().add(ExportItemsEvent(_items));
             },
             tooltip: 'Export to Excel',
+          ),
+          IconButton(
+            icon: Icon(Icons.settings),
+            tooltip: 'Change Scan Mode',
+            onPressed: () async {
+              await clearScanMode();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: Text(
+                        'Scan mode preference cleared! Next scan will ask again.')),
+              );
+            },
           ),
         ],
       ),
@@ -57,8 +74,14 @@ class _ItemPageState extends State<ItemPage> {
           if (state is ExportSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                  content: Text(
-                      'File saved in Download folder:\n${state.filePath}')),
+                content: Text('File saved at:\n${state.filePath}'),
+                action: SnackBarAction(
+                  label: 'Open',
+                  onPressed: () {
+                    OpenFilex.open(state.filePath);
+                  },
+                ),
+              ),
             );
           }
           if (state is ExportFailure) {
@@ -140,6 +163,29 @@ class _ItemPageState extends State<ItemPage> {
     );
   }
 }
+
+Future<void> startScan(BuildContext context) async {
+  bool? useCamera = await loadScanMode();
+  if (useCamera == null) {
+    useCamera = await showScanModeDialog(context);
+    if (useCamera != null) {
+      await saveScanMode(useCamera);
+    } else {
+      // User cancelled dialog
+      return;
+    }
+  }
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => ScannerPage(useCamera: useCamera!),
+      
+    ),
+  );
+}
+
+
+
 
 class EditItemDialog extends StatefulWidget {
   final Item item;

@@ -1,19 +1,19 @@
 import 'package:excel/excel.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
 import 'dart:io';
-import 'package:share_plus/share_plus.dart';
 import 'package:flutter_stock_scanner/features/import/data/data_sources/item_local_datasource.dart';
 import 'package:flutter_stock_scanner/features/import/data/models/item_model.dart';
 import 'package:flutter_stock_scanner/features/import/domain/entities/item.dart';
 import 'package:flutter_stock_scanner/features/import/domain/repositories/item_repository.dart';
-import 'package:file_saver/file_saver.dart';
 import 'dart:typed_data';
-import 'package:open_filex/open_filex.dart';
+import 'package:file_saver/file_saver.dart';
 
 class ItemRepositoryImpl implements ItemRepository {
   final ItemLocalDataSource localDataSource;
 
   ItemRepositoryImpl({required this.localDataSource});
+
+  // ----------------------------------------------------
 
   @override
   Future<void> importItems(List<Item> items) async {
@@ -31,13 +31,18 @@ class ItemRepositoryImpl implements ItemRepository {
     await localDataSource.insertItems(itemModels);
   }
 
+  // ----------------------------------------------------
+
   @override
   Future<List<Item>> getAllItems() async {
     return await localDataSource.getAllItems();
   }
+  // ----------------------------------------------------
 
   @override
   Future<void> deleteItem(String code) => localDataSource.deleteItem(code);
+
+  // ----------------------------------------------------
 
   @override
   Future<void> updateItem(Item item) => localDataSource.updateItem(ItemModel(
@@ -48,16 +53,22 @@ class ItemRepositoryImpl implements ItemRepository {
         quantity: item.quantity,
       ));
 
+  // ----------------------------------------------------
+
+
   @override
   Future<Item?> getItemByCode(String code) async {
     return await localDataSource.getItemByCode(code);
   }
 
+  // ----------------------------------------------------
+
+
   @override
   Future<String> exportItemsToExcel(List<Item> items) async {
+    print('Exporting with file_picker and writeAsBytes');
     final excel = Excel.createExcel();
     final sheet = excel['Items'];
-
     sheet.appendRow([
       TextCellValue('Code'),
       TextCellValue('Label'),
@@ -78,18 +89,13 @@ class ItemRepositoryImpl implements ItemRepository {
     final excelBytes = excel.save();
     if (excelBytes == null) throw Exception('Failed to generate Excel file.');
 
-    final result = await FileSaver.instance.saveFile(
-      name: "exported_items",
+    final res = await FileSaver.instance.saveFile(
+      name: 'exported_items',
       bytes: Uint8List.fromList(excelBytes),
-      ext: "xlsx",
+      ext: 'xlsx',
       mimeType: MimeType.microsoftExcel,
     );
 
-    if (result.isNotEmpty) {
-      await OpenFilex.open(
-          result); // This will prompt the user to open the file with Excel or another app
-    }
-
-    return result ?? "Exported successfully";
+    return res; // This is the file path or URI
   }
 }

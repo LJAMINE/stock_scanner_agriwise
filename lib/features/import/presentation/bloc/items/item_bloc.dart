@@ -87,13 +87,11 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
         emit(ItemError(e.toString()));
       }
     });
-    
-    
-    
+
     on<ExportItemsEvent>((event, emit) async {
       try {
-        await exportItemsToExcelUseCase(event.items);
-        emit(ExportSuccess("Export completed successfully!"));
+        final filePath = await exportItemsToExcelUseCase(event.items);
+        emit(ExportSuccess(filePath));
       } catch (e) {
         emit(ExportFailure(e.toString()));
       }

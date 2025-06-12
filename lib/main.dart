@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/': (context) => const ItemPage(),
           '/import': (context) => const ImportPage(),
-          '/scanner': (context) => const ScannerPage(),
+          // '/scanner': (context) => const ScannerPage(),
           // Add '/scanner': (context) => ScannerPage(), later
         },
       ),
