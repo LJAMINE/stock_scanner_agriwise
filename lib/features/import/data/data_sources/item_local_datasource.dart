@@ -47,9 +47,16 @@ class ItemLocalDataSource {
     await batch.commit(noResult: true);
   }
 
+  // Future<List<ItemModel>> getAllItems() async {
+  //   final dbClient = await db;
+  //   final maps = await dbClient.query('items');
+  //   return maps.map((map) => ItemModel.fromMap(map)).toList();
+  // }
+
   Future<List<ItemModel>> getAllItems() async {
     final dbClient = await db;
     final maps = await dbClient.query('items');
+    print('DEBUG: getAllItems returned ${maps.length} items');
     return maps.map((map) => ItemModel.fromMap(map)).toList();
   }
 
@@ -73,7 +80,7 @@ class ItemLocalDataSource {
     );
   }
 
-  Future<Item?> getItemByCode(String code)async{
+  Future<Item?> getItemByCode(String code) async {
     final dbClient = await db;
     final maps = await dbClient.query(
       'items',

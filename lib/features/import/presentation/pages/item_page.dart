@@ -7,6 +7,14 @@ import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/it
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_state.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/scanner_page.dart';
 import 'package:open_filex/open_filex.dart';
+// Add this import at the top with the others:
+import 'package:share_plus/share_plus.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
+
+import 'package:share_plus/share_plus.dart';
+// import 'package:share_plus/src/x_file.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ItemPage extends StatefulWidget {
   const ItemPage({super.key});
@@ -16,7 +24,7 @@ class ItemPage extends StatefulWidget {
 }
 
 class _ItemPageState extends State<ItemPage> {
-  List<Item> _items = [];
+  List<Item> _items = []; // Only for export, do not use for UI display
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +47,16 @@ class _ItemPageState extends State<ItemPage> {
           IconButton(
             icon: const Icon(Icons.download),
             onPressed: () {
-              context.read<ItemBloc>().add(ExportItemsEvent(_items));
+              // Get the latest items from Bloc state for export
+              final state = context.read<ItemBloc>().state;
+              if (state is ItemsLoaded) {
+                _items = state.items;
+                context.read<ItemBloc>().add(ExportItemsEvent(_items));
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("No items to export.")),
+                );
+              }
             },
             tooltip: 'Export to Excel',
           ),
@@ -63,9 +80,18 @@ class _ItemPageState extends State<ItemPage> {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.message)));
           }
+          // if (state is ItemUpdated) {
+          //   ScaffoldMessenger.of(context)
+          //       .showSnackBar(const SnackBar(content: Text("Item updated!")));
+          // }
+
           if (state is ItemUpdated) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(const SnackBar(content: Text("Item updated!")));
+            // After an item is updated, reload all items
+            context.read<ItemBloc>().add(GetAllItemsEvent());
+            // Optionally show a snackbar
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Item updated!')),
+            );
           }
           if (state is ItemDeleted) {
             ScaffoldMessenger.of(context)
@@ -76,14 +102,89 @@ class _ItemPageState extends State<ItemPage> {
               SnackBar(
                 content: Text('File saved at:\n${state.filePath}'),
                 action: SnackBarAction(
-                  label: 'Open',
-                  onPressed: () {
-                    OpenFilex.open(state.filePath);
+                  label: 'Actions',
+                  onPressed: () async {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (ctx) => SafeArea(
+                        child: Wrap(
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.open_in_new),
+                              title: const Text('Open'),
+                              onTap: () {
+                                OpenFilex.open(state.filePath);
+                                Navigator.pop(ctx);
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.download),
+                              title: const Text('Save to Downloads'),
+                              onTap: () async {
+                                try {
+                                  String? pickedDir = await FilePicker.platform
+                                      .getDirectoryPath(
+                                    dialogTitle:
+                                        'Select folder to save Excel file',
+                                  );
+                                  if (pickedDir != null) {
+                                    final fileName =
+                                        state.filePath.split('/').last;
+                                    final destPath = '$pickedDir/$fileName';
+                                    final sourceFile = File(state.filePath);
+                                    final bytes =
+                                        await sourceFile.readAsBytes();
+                                    final destFile = File(destPath);
+                                    await destFile.writeAsBytes(bytes);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content:
+                                              Text('File saved to: $destPath')),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'File save cancelled or failed.')),
+                                    );
+                                  }
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Save failed: $e')),
+                                  );
+                                }
+                                Navigator.pop(ctx);
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.share),
+                              title: const Text('Share'),
+                              onTap: () async {
+                                Navigator.pop(ctx);
+                                // Use share_plus to share the file
+                                try {
+                                  // ignore: use_build_context_synchronously
+                                  await Share.shareXFiles(
+                                      [XFile(state.filePath)],
+                                      text: 'Here is the exported Excel file.');
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Share failed: $e')),
+                                  );
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
                   },
                 ),
               ),
             );
+            context.read<ItemBloc>().add(GetAllItemsEvent());
           }
+
           if (state is ExportFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Export failed: ${state.message}")));
@@ -93,7 +194,6 @@ class _ItemPageState extends State<ItemPage> {
           if (state is ItemLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is ItemsLoaded) {
-            _items = state.items;
             final items = state.items;
             if (items.isEmpty) {
               return const Center(child: Text("No items found."));
@@ -179,13 +279,9 @@ Future<void> startScan(BuildContext context) async {
     context,
     MaterialPageRoute(
       builder: (_) => ScannerPage(useCamera: useCamera!),
-      
     ),
   );
 }
-
-
-
 
 class EditItemDialog extends StatefulWidget {
   final Item item;

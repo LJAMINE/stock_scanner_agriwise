@@ -21,7 +21,6 @@ Future<bool?> showScanModeDialog(BuildContext context) {
     context: context,
     builder: (context) => SimpleDialog(
       title: Text("Choose Scan Mode"),
-      
       children: [
         SimpleDialogOption(
           child: const Text('Use Camera'),

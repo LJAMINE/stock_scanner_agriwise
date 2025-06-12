@@ -17,6 +17,7 @@ class ScannerPage extends StatefulWidget {
 
 class _ScannerPageState extends State<ScannerPage> {
   bool _isProcessing = false;
+  bool _shouldPop = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +29,8 @@ class _ScannerPageState extends State<ScannerPage> {
       ),
       body: BlocConsumer<ItemBloc, ItemState>(
         listener: (context, state) async {
+          if (_shouldPop) return; // Prevent further actions after pop
+
           // Only handle when not already processing
           if (state is ItemFound && !_isProcessing) {
             _isProcessing = true;
@@ -49,14 +52,21 @@ class _ScannerPageState extends State<ScannerPage> {
                       ),
                     ),
                   );
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("Quantity updated!"),
-                ),
-              );
-              Navigator.pop(context);
+              // Do NOT pop here! Wait for ItemUpdated state
+            } else {
+              _isProcessing =
+                  false; // Only allow next scan if dialog was cancelled
             }
-            _isProcessing = false; // Allow next scan
+          }
+          if (state is ItemUpdated) {
+            // Now show snackbar and pop the scanner page
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Quantity updated!")),
+            );
+            // Reset Bloc state to prevent dialog from showing again
+            context.read<ItemBloc>().add(ResetItemState());
+            _shouldPop = true;
+            Navigator.pop(context);
           }
           if (state is ItemNotFound && !_isProcessing) {
             _isProcessing = true;

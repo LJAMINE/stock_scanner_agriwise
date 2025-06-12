@@ -39,7 +39,12 @@ class SearchItemByCodeEvent extends ItemEvent {
   const SearchItemByCodeEvent(this.code);
 }
 
+
 class ExportItemsEvent extends ItemEvent {
   final List<Item> items;
   const ExportItemsEvent(this.items);
 }
+
+class ResetItemState extends ItemEvent {}
+
+

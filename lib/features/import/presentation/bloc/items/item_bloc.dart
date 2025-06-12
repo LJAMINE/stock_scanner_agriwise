@@ -24,6 +24,8 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     required this.getItemByCode,
     required this.exportItemsToExcelUseCase,
   }) : super(ItemInitial()) {
+    on<ResetItemState>((event, emit) => emit(ItemInitial()));
+
     on<ImportItemsEvent>((event, emit) async {
       emit(ItemLoading());
       try {
