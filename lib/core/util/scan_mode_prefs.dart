@@ -14,6 +14,9 @@ Future<bool?> loadScanMode() async {
 Future<void> clearScanMode() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.remove('useCamera');
+
+
+  
 }
 
 Future<bool?> showScanModeDialog(BuildContext context) {

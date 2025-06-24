@@ -119,7 +119,7 @@ class _ImportPageState extends State<ImportPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('import excel or add manually'),
+          title: const Text('import excel or  manually'),
           backgroundColor: Colors.blue,
           centerTitle: true,
         ),
@@ -127,71 +127,129 @@ class _ImportPageState extends State<ImportPage> {
           padding: const EdgeInsets.all(17),
           child: _loading
               ? const Center(child: CircularProgressIndicator())
-              : Column(
+              : Stack(
                   children: [
-                    ElevatedButton.icon(
-                      onPressed: _pickFile,
-                      icon: const Icon(Icons.upload_file),
-                      label: const Text("Choose Excel File"),
-                    ),
-                    SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: () => _showManualAddDialog(),
-                      label: const Text("Add items manually"),
-                      icon: const Icon(Icons.add),
-                    ),
-                    if (_error != null) ...[
-                      const SizedBox(height: 16),
-                      Text(
-                        _error!,
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    ],
-                    if (_previewItems.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      const Text("Preview (first 5 rows):"),
-                      SizedBox(
-                        height: 200,
-                        child: ListView.builder(
-                          itemCount: _previewItems.length > 5
-                              ? 5
-                              : _previewItems.length,
-                          itemBuilder: (context, index) {
-                            final item = _previewItems[index];
-                            return ListTile(
-                              title: Text(item.label),
-                              subtitle: Text(
-                                  'Code: ${item.code} | Qty: ${item.quantity}'),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit,
-                                        color: Colors.blue),
-                                    onPressed: () => _showManualAddDialog(
-                                        editIndex: index, editItem: item),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: _pickFile,
+                          icon: const Icon(Icons.upload_file),
+                          label: const Text("Choose Excel File"),
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 14),
+                            textStyle: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () => _showManualAddDialog(),
+                          label: const Text("Add items manually"),
+                          icon: const Icon(Icons.add),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            padding: EdgeInsets.symmetric(vertical: 14),
+                            textStyle: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                        if (_error != null) ...[
+                          const SizedBox(height: 16),
+                          Text(
+                            _error!,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ],
+                        if (_previewItems.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          Divider(),
+                          const Text(
+                            "Preview (first 5 rows):",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          SizedBox(
+                            height: 220,
+                            child: ListView.builder(
+                              itemCount: _previewItems.length > 5
+                                  ? 5
+                                  : _previewItems.length,
+                              itemBuilder: (context, index) {
+                                final item = _previewItems[index];
+                                return Card(
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 6, horizontal: 0),
+                                  elevation: 2,
+                                  child: ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundColor: item.quantity == 0
+                                          ? Colors.red
+                                          : Colors.green,
+                                      child: Text(
+                                        item.label.isNotEmpty
+                                            ? item.label[0].toUpperCase()
+                                            : '?',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                    title: Text(
+                                      item.label,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    subtitle: Text(
+                                        'Code: ${item.code} | Qty: ${item.quantity}'),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.edit,
+                                              color: Colors.blue),
+                                          onPressed: () => _showManualAddDialog(
+                                              editIndex: index, editItem: item),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete,
+                                              color: Colors.red),
+                                          onPressed: () {
+                                            setState(() {
+                                              _previewItems.removeAt(index);
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.red),
-                                    onPressed: () {
-                                      setState(() {
-                                        _previewItems.removeAt(index);
-                                      });
-                                    },
-                                  ),
-                                ],
+                                );
+                              },
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              icon: const Icon(Icons.check),
+                              label: const Text("Import",
+                                  style: TextStyle(fontSize: 18)),
+                              style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(vertical: 14),
+                                backgroundColor: Colors.blue,
                               ),
-                            );
-                          },
+                              onPressed: _import,
+                            ),
+                          ),
+                        ]
+                      ],
+                    ),
+                    if (!_loading)
+                      Positioned(
+                        bottom: 10,
+                        right: 10,
+                        child: FloatingActionButton(
+                          onPressed: () => _showManualAddDialog(),
+                          tooltip: 'Add Item Manually',
+                          child: Icon(Icons.add),
                         ),
                       ),
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.check),
-                        label: const Text("Import"),
-                        onPressed: _import,
-                      )
-                    ]
                   ],
                 ),
         ),

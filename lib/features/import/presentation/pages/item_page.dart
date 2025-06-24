@@ -7,6 +7,9 @@ import 'package:flutter_stock_scanner/features/import/domain/entities/item.dart'
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_bloc.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_event.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_state.dart';
+import 'package:flutter_stock_scanner/features/import/presentation/pages/ArchivePage.dart';
+import 'package:flutter_stock_scanner/features/import/presentation/pages/ParametrePage.dart';
+import 'package:flutter_stock_scanner/features/import/presentation/pages/ScanPage.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/scanner_page.dart';
 import 'package:open_filex/open_filex.dart';
 // Add this import at the top with the others:
@@ -31,6 +34,32 @@ class _ItemPageState extends State<ItemPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: 0, // Always 0 for Items tab
+        selectedItemColor: Colors.blue,
+        onTap: (index) {
+          if (index == 0) return; // Already on Items
+          if (index == 1) {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => ScanPage()));
+          } else if (index == 2) {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => ArchivePage()));
+          } else if (index == 3) {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => ParametrePage()));
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Items'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.qr_code_scanner), label: 'Scan'),
+          BottomNavigationBarItem(icon: Icon(Icons.archive), label: 'Archive'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.settings), label: 'Parametre'),
+        ],
+      ),
       appBar: AppBar(
         title: const Text('Item List'),
         centerTitle: true,
@@ -63,7 +92,7 @@ class _ItemPageState extends State<ItemPage> {
             tooltip: 'Export to Excel',
           ),
           IconButton(
-            icon: Icon(Icons.settings),
+            icon: Icon(Icons.refresh),
             tooltip: 'Change Scan Mode',
             onPressed: () async {
               await clearScanMode();
@@ -112,12 +141,16 @@ class _ItemPageState extends State<ItemPage> {
                           children: [
                             ListTile(
                               leading: Icon(Icons.camera_alt),
-                              title: Text("Use Camera"),
+                              title: Text("Use Camera "),
+                              subtitle: Text(
+                                  "Use your device camera to scan barcodes"),
                               onTap: () => Navigator.pop(ctx, true),
                             ),
                             ListTile(
-                              leading: Icon(Icons.scanner),
-                              title: Text("Use Hardware Scanner"),
+                              leading: Icon(Icons.scanner_outlined),
+                              title: Text("Use  Scanner"),
+                              subtitle:
+                                  Text("Use hardware scanner to scan barcodes"),
                               onTap: () => Navigator.pop(ctx, false),
                             ),
                           ],
@@ -133,6 +166,8 @@ class _ItemPageState extends State<ItemPage> {
                               'Scan mode set to ${useCamera ? "Camera" : "Hardware Scanner"}'),
                         ),
                       );
+
+                      setState(() {});
                     }
                     Navigator.pop(context); // Close drawer
                   },
@@ -320,54 +355,65 @@ class _ItemPageState extends State<ItemPage> {
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];
-                return ListTile(
-                  title: Text(item.label),
-                  subtitle: Text('Code: ${item.code} | Qty: ${item.quantity}'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () async {
-                          final updated = await showDialog<Item>(
-                            context: context,
-                            builder: (_) => EditItemDialog(item: item),
-                          );
-                          if (updated != null) {
-                            context
-                                .read<ItemBloc>()
-                                .add(UpdateItemEvent(updated));
-                          }
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text("Delete Item"),
-                              content: const Text("Are you sure?"),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(ctx),
-                                  child: const Text("Cancel"),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    context
-                                        .read<ItemBloc>()
-                                        .add(DeleteItemEvent(item.code));
-                                    Navigator.pop(ctx);
-                                  },
-                                  child: const Text("Delete"),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                return Card(
+                  margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  elevation: 2,
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      child: Text(item.label.isNotEmpty
+                          ? item.label[0].toUpperCase()
+                          : '?'),
+                    ),
+                    title: Text(item.label,
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle:
+                        Text('Code: ${item.code} | Qty: ${item.quantity}'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit, color: Colors.blue),
+                          onPressed: () async {
+                            final updated = await showDialog<Item>(
+                              context: context,
+                              builder: (_) => EditItemDialog(item: item),
+                            );
+                            if (updated != null) {
+                              context
+                                  .read<ItemBloc>()
+                                  .add(UpdateItemEvent(updated));
+                            }
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: Text("Delete Item"),
+                                content: Text("Are you sure?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(ctx),
+                                    child: Text("Cancel"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      context
+                                          .read<ItemBloc>()
+                                          .add(DeleteItemEvent(item.code));
+                                      Navigator.pop(ctx);
+                                    },
+                                    child: Text("Delete"),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
