@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_stock_scanner/core/util/ItemExcelImporter.dart';
 import 'package:flutter_stock_scanner/core/util/editItemDialog.dart';
 import 'package:flutter_stock_scanner/core/util/scan_mode_prefs.dart';
 import 'package:flutter_stock_scanner/core/util/startScan.dart';
@@ -31,9 +32,107 @@ class ItemPage extends StatefulWidget {
 class _ItemPageState extends State<ItemPage> {
   List<Item> _items = []; // Only for export, do not use for UI display
 
+  Future<void> _pickExcelFile(BuildContext context) async {
+    final (items, err) = await ItemExcelImporter.pickAndParseExcel();
+    if (err != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(err)),
+      );
+      return;
+    }
+    if (items != null && items.isNotEmpty) {
+      context.read<ItemBloc>().add(ImportItemsEvent(items));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Imported ${items.length} items!")),
+      );
+    }
+  }
+
+  void _showManualAddDialog(BuildContext context) {
+    final codeController = TextEditingController();
+    final labelController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Add Item manually"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: codeController,
+              decoration: const InputDecoration(labelText: "Code"),
+            ),
+            TextField(
+              controller: labelController,
+              decoration: const InputDecoration(labelText: "Label"),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel")),
+          ElevatedButton(
+            onPressed: () {
+              final code = codeController.text.trim();
+              final label = labelController.text.trim();
+
+              if (code.isNotEmpty && label.isNotEmpty) {
+                final newItem = Item(
+                  code: code,
+                  label: label,
+                  description: "",
+                  date: "",
+                  quantity: 0,
+                );
+                context.read<ItemBloc>().add(ImportItemsEvent([newItem]));
+              }
+              Navigator.pop(context);
+            },
+            child: Text("Add"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddOptionsDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: Icon(Icons.add),
+              title: Text('Add items manually'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showManualAddDialog(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.upload_file),
+              title: Text('Choose Excel File'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickExcelFile(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddOptionsDialog(context),
+        tooltip: 'Add Items',
+        child: Icon(Icons.add),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: 0, // Always 0 for Items tab
