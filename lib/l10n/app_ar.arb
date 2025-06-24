@@ -1,0 +1,12 @@
+{
+  "parametrePage": "صفحة الإعدادات",
+  "scanMode": "وضع المسح",
+  "language": "اللغة",
+  "change": "تغيير",
+  "notSet": "غير محدد",
+  "cameraScanner": "ماسح الكاميرا",
+  "hardwareScanner": "ماسح الأجهزة",
+  "selectScanMode": "اختر وضع المسح",
+  "useCamera": "استخدم الكاميرا",
+  "useHardwareScanner": "استخدم ماسح الأجهزة"
+}

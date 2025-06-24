@@ -1,0 +1,12 @@
+{
+  "parametrePage": "Page Paramètre",
+  "scanMode": "Mode de scan",
+  "language": "Langue",
+  "change": "Changer",
+  "notSet": "Non défini",
+  "cameraScanner": "Scanner caméra",
+  "hardwareScanner": "Scanner matériel",
+  "selectScanMode": "Sélectionner le mode de scan",
+  "useCamera": "Utiliser la caméra",
+  "useHardwareScanner": "Utiliser le scanner matériel"
+}
