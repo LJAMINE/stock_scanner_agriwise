@@ -39,7 +39,6 @@ class SearchItemByCodeEvent extends ItemEvent {
   const SearchItemByCodeEvent(this.code);
 }
 
-
 class ExportItemsEvent extends ItemEvent {
   final List<Item> items;
   const ExportItemsEvent(this.items);
@@ -47,4 +46,8 @@ class ExportItemsEvent extends ItemEvent {
 
 class ResetItemState extends ItemEvent {}
 
-
+class SaveBatchToArchiveEvent extends ItemEvent {
+  final List<Item> items;
+  final DateTime date;
+  const SaveBatchToArchiveEvent({required this.items, required this.date});
+}

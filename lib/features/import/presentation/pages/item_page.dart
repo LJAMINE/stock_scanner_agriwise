@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_stock_scanner/core/util/ItemExcelImporter.dart';
 import 'package:flutter_stock_scanner/core/util/editItemDialog.dart';
+import 'package:flutter_stock_scanner/core/util/imagebase64.dart';
 import 'package:flutter_stock_scanner/core/util/scan_mode_prefs.dart';
 import 'package:flutter_stock_scanner/core/util/startScan.dart';
 import 'package:flutter_stock_scanner/features/import/domain/entities/item.dart';
@@ -12,6 +15,8 @@ import 'package:flutter_stock_scanner/features/import/presentation/pages/Archive
 import 'package:flutter_stock_scanner/features/import/presentation/pages/ParametrePage.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/ScanPage.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/scanner_page.dart';
+import 'package:image_picker/image_picker.dart';
+
 import 'package:open_filex/open_filex.dart';
 // Add this import at the top with the others:
 import 'package:share_plus/share_plus.dart';
@@ -458,15 +463,37 @@ class _ItemPageState extends State<ItemPage> {
                   margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   elevation: 2,
                   child: ListTile(
-                    leading: CircleAvatar(
-                      child: Text(item.label.isNotEmpty
-                          ? item.label[0].toUpperCase()
-                          : '?'),
+                    leading: GestureDetector(
+                      onTap: () async {
+                        final base64 = await pickImageAsBase64();
+                        if (base64 != null) {
+                          final updatedItem = Item(
+                            code: item.code,
+                            label: item.label,
+                            description: item.description,
+                            date: item.date,
+                            quantity: item.quantity,
+                            imageBase64: base64,
+                          );
+                          context
+                              .read<ItemBloc>()
+                              .add(UpdateItemEvent(updatedItem));
+                        }
+                      },
+                      child: CircleAvatar(
+                        backgroundImage: item.imageBase64 != null
+                            ? MemoryImage(base64Decode(item.imageBase64!))
+                            : null,
+                        child: item.imageBase64 == null
+                            ? Text(item.label.isNotEmpty
+                                ? item.label[0].toUpperCase()
+                                : '?')
+                            : null,
+                      ),
                     ),
                     title: Text(item.label,
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle:
-                        Text('Code: ${item.code} | Qty: ${item.quantity}'),
+                    subtitle: Text('Code: ${item.code} '),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [

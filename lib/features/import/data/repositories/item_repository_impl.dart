@@ -51,10 +51,10 @@ class ItemRepositoryImpl implements ItemRepository {
         description: item.description,
         date: item.date,
         quantity: item.quantity,
+        imageBase64: item.imageBase64,
       ));
 
   // ----------------------------------------------------
-
 
   @override
   Future<Item?> getItemByCode(String code) async {
@@ -62,7 +62,6 @@ class ItemRepositoryImpl implements ItemRepository {
   }
 
   // ----------------------------------------------------
-
 
   @override
   Future<String> exportItemsToExcel(List<Item> items) async {

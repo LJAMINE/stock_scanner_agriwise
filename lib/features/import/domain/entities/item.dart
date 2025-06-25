@@ -4,6 +4,7 @@ class Item {
   final String description;
   final String date;
   final int quantity;
+  final String? imageBase64;
 
   const Item({
     required this.code,
@@ -11,5 +12,6 @@ class Item {
     required this.description,
     required this.date,
     required this.quantity,
+    this.imageBase64,
   });
 }

@@ -9,6 +9,7 @@ class ItemModel extends Item {
     required super.description,
     required super.date,
     required super.quantity,
+    super.imageBase64,
   });
 
   // From DB (Map) to Model
@@ -20,6 +21,7 @@ class ItemModel extends Item {
       description: map['description'],
       date: map['date'],
       quantity: map['quantity'],
+      imageBase64: map['imageBase64'],
     );
   }
 
@@ -32,6 +34,29 @@ class ItemModel extends Item {
       'description': description,
       'date': date,
       'quantity': quantity,
+      'imageBase64': imageBase64,
+    };
+  }
+
+  factory ItemModel.fromJson(Map<String, dynamic> json) {
+    return ItemModel(
+      code: json['code'],
+      label: json['label'],
+      description: json['description'],
+      date: json['date'],
+      quantity: json['quantity'],
+      imageBase64: json['imageBase64'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'code': code,
+      'label': label,
+      'description': description,
+      'date': date,
+      'quantity': quantity,
+      'imageBase64': imageBase64,
     };
   }
 }

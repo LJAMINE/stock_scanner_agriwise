@@ -4,6 +4,7 @@ import 'package:flutter_stock_scanner/features/import/domain/usecases/export_ite
 import 'package:flutter_stock_scanner/features/import/domain/usecases/get_all_items.dart';
 import 'package:flutter_stock_scanner/features/import/domain/usecases/get_item_by_code.dart';
 import 'package:flutter_stock_scanner/features/import/domain/usecases/import_items.dart';
+import 'package:flutter_stock_scanner/features/import/domain/usecases/saveBatchToArchive.dart';
 import 'package:flutter_stock_scanner/features/import/domain/usecases/update_item.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_event.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_state.dart';
@@ -15,6 +16,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
   final DeleteItem deleteItemUseCase;
   final GetItemByCode getItemByCode;
   final ExportItemsToExcel exportItemsToExcelUseCase;
+  final SaveBatchToArchive saveBatchToArchiveUseCase;
 
   ItemBloc({
     required this.importItems,
@@ -23,6 +25,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     required this.deleteItemUseCase,
     required this.getItemByCode,
     required this.exportItemsToExcelUseCase,
+    required this.saveBatchToArchiveUseCase,
   }) : super(ItemInitial()) {
     on<ResetItemState>((event, emit) => emit(ItemInitial()));
 
@@ -96,6 +99,16 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
         emit(ExportSuccess(filePath));
       } catch (e) {
         emit(ExportFailure(e.toString()));
+      }
+    });
+
+    on<SaveBatchToArchiveEvent>((event, emit) async {
+      emit(ItemLoading());
+      try {
+        saveBatchToArchiveUseCase(event.items, event.date);
+        emit(BatchSavedSuccess());
+      } catch (e) {
+        emit(ItemError(e.toString()));
       }
     });
   }

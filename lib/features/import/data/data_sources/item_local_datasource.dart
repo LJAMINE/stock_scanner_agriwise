@@ -30,7 +30,8 @@ class ItemLocalDataSource {
             label TEXT,
             description TEXT,
             date TEXT,
-            quantity INTEGER
+            quantity INTEGER, 
+            imageBase64 TEXT
         )
         ''');
       },

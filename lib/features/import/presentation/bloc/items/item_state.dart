@@ -58,3 +58,5 @@ class ExportFailure extends ItemState {
   final String message;
   const ExportFailure(this.message);
 }
+
+class BatchSavedSuccess extends ItemState {}

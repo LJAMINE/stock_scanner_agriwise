@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_stock_scanner/features/import/data/data_sources/archive_local_data_source_impl.dart';
 import 'package:flutter_stock_scanner/features/import/data/data_sources/item_local_datasource.dart';
+import 'package:flutter_stock_scanner/features/import/data/repositories/archive_repository_impl.dart';
 import 'package:flutter_stock_scanner/features/import/domain/usecases/delete_item.dart';
 import 'package:flutter_stock_scanner/features/import/domain/usecases/export_items_to_excel.dart';
 import 'package:flutter_stock_scanner/features/import/domain/usecases/get_item_by_code.dart';
+import 'package:flutter_stock_scanner/features/import/domain/usecases/saveBatchToArchive.dart';
 import 'package:flutter_stock_scanner/features/import/domain/usecases/update_item.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/LanguageBloc/language_event.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/LanguageBloc/language_bloc.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/LanguageBloc/language_state.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_event.dart';
+import 'package:flutter_stock_scanner/features/import/presentation/pages/ArchivePage.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/item_page.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/import_page.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_bloc.dart';
@@ -36,6 +40,11 @@ class MyApp extends StatelessWidget {
     final deleteItemUsecase = DeleteItem(repository);
     final getItemByCode = GetItemByCode(repository);
     final exportItemsToExcelUseCase = ExportItemsToExcel(repository);
+    // Archive dependencies
+    final archiveLocalDataSource = ArchiveLocalDataSourceImpl();
+    final archiveRepository =
+        ArchiveRepositoryImpl(localDataSource: archiveLocalDataSource);
+    final saveBatchToArchiveUseCase = SaveBatchToArchive(archiveRepository);
 
     return MultiBlocProvider(
         providers: [
@@ -47,6 +56,8 @@ class MyApp extends StatelessWidget {
               deleteItemUseCase: deleteItemUsecase,
               getItemByCode: getItemByCode,
               exportItemsToExcelUseCase: exportItemsToExcelUseCase,
+              saveBatchToArchiveUseCase:
+                  saveBatchToArchiveUseCase, // <-- add this
             )..add(GetAllItemsEvent()), // Load items on start
           ),
           BlocProvider<LanguageBloc>(
@@ -66,6 +77,7 @@ class MyApp extends StatelessWidget {
               routes: {
                 '/': (context) => const ItemPage(),
                 '/import': (context) => const ImportPage(),
+                '/archive': (context) => const ArchivePage(),
                 // '/scanner': (context) => const ScannerPage(),
                 // Add '/scanner': (context) => ScannerPage(), later
               },
