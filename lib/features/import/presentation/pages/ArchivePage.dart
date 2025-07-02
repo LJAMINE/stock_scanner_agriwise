@@ -64,7 +64,7 @@ class _ArchivePageState extends State<ArchivePage> {
                   leading: CircleAvatar(
                     backgroundColor: Colors.blue.shade100,
                     child: Text(
-                      '${batch.items.length}',
+                      '${index + 1}',
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, color: Colors.blue),
                     ),

@@ -73,16 +73,24 @@ class _ScanPageState extends State<ScanPage> {
                 icon: Icon(Icons.save),
                 tooltip: 'Save batch to archive',
                 onPressed: () {
-                  // Save scannedItems to archive (dispatch Bloc event or call your archive logic)
+                  // Save scannedItems to archive
                   context.read<ItemBloc>().add(SaveBatchToArchiveEvent(
                         items: List<Item>.from(scannedItems),
                         date: DateTime.now(),
                       ));
+
+                  // Update each item in the main database
+                  for (final item in scannedItems) {
+                    context.read<ItemBloc>().add(UpdateItemEvent(item));
+                  }
+
                   setState(() {
                     scannedItems.clear();
                   });
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Batch saved to archive!')),
+                    SnackBar(
+                        content:
+                            Text('Batch saved to archive and items updated!')),
                   );
                 },
               ),

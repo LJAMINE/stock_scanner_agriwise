@@ -35,7 +35,7 @@ class ItemPage extends StatefulWidget {
 }
 
 class _ItemPageState extends State<ItemPage> {
-  List<Item> _items = []; // Only for export, do not use for UI display
+  final List<Item> _items = []; // Only for export, do not use for UI display
 
   Future<void> _pickExcelFile(BuildContext context) async {
     final (items, err) = await ItemExcelImporter.pickAndParseExcel();
@@ -168,47 +168,48 @@ class _ItemPageState extends State<ItemPage> {
         title: const Text('Item List'),
         centerTitle: true,
         backgroundColor: Colors.blue,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.upload_file),
-            onPressed: () => Navigator.pushNamed(context, '/import'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.scanner),
-            onPressed: () => startScan(context),
 
-            // onPressed: () => Navigator.pushNamed(context, '/scanner'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.download),
-            onPressed: () {
-              // Get the latest items from Bloc state for export
-              final state = context.read<ItemBloc>().state;
-              if (state is ItemsLoaded) {
-                _items = state.items;
-                context.read<ItemBloc>().add(ExportItemsEvent(_items));
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("No items to export.")),
-                );
-              }
-            },
-            tooltip: 'Export to Excel',
-          ),
-          IconButton(
-            icon: Icon(Icons.refresh),
-            tooltip: 'Change Scan Mode',
-            onPressed: () async {
-              await clearScanMode();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                      'Scan mode preference cleared! Next scan will ask again.'),
-                ),
-              );
-            },
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.upload_file),
+        //     onPressed: () => Navigator.pushNamed(context, '/import'),
+        //   ),
+        //   IconButton(
+        //     icon: const Icon(Icons.scanner),
+        //     onPressed: () => startScan(context),
+
+        //     // onPressed: () => Navigator.pushNamed(context, '/scanner'),
+        //   ),
+        //   IconButton(
+        //     icon: const Icon(Icons.download),
+        //     onPressed: () {
+        //       // Get the latest items from Bloc state for export
+        //       final state = context.read<ItemBloc>().state;
+        //       if (state is ItemsLoaded) {
+        //         _items = state.items;
+        //         context.read<ItemBloc>().add(ExportItemsEvent(_items));
+        //       } else {
+        //         ScaffoldMessenger.of(context).showSnackBar(
+        //           const SnackBar(content: Text("No items to export.")),
+        //         );
+        //       }
+        //     },
+        //     tooltip: 'Export to Excel',
+        //   ),
+        //   IconButton(
+        //     icon: Icon(Icons.refresh),
+        //     tooltip: 'Change Scan Mode',
+        //     onPressed: () async {
+        //       await clearScanMode();
+        //       ScaffoldMessenger.of(context).showSnackBar(
+        //         SnackBar(
+        //           content: Text(
+        //               'Scan mode preference cleared! Next scan will ask again.'),
+        //         ),
+        //       );
+        //     },
+        //   ),
+        // ],
       ),
       drawer: Drawer(
         child: ListView(
