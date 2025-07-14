@@ -43,10 +43,16 @@ class _ParametrePageState extends State<ParametrePage> {
     context.read<LanguageBloc>().add(ChangeLanguage(Locale(lang)));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          content: Text(
-        // Use a simple string instead of a non-existent localization method
-        '${AppLocalizations.of(context)?.language ?? 'Language'} set to $lang',
-      )),
+        content: Text(
+          // Use a simple string instead of a non-existent localization method
+          '${AppLocalizations.of(context)?.language ?? 'Language'} set to $lang',
+        ),
+        backgroundColor: Color(0xFF356033),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
     );
   }
 
@@ -54,22 +60,70 @@ class _ParametrePageState extends State<ParametrePage> {
     bool? useCamera = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         title: Text(
-            AppLocalizations.of(context)?.selectScanMode ?? 'Select scan mode'),
+          AppLocalizations.of(context)?.selectScanMode ?? 'Select scan mode',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF356033),
+          ),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: Icon(Icons.camera_alt),
-              title:
-                  Text(AppLocalizations.of(context)?.useCamera ?? 'Use Camera'),
-              onTap: () => Navigator.pop(ctx, true),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: ListTile(
+                leading: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF356033).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.camera_alt, color: Color(0xFF356033)),
+                ),
+                title: Text(
+                  AppLocalizations.of(context)?.useCamera ?? 'Use Camera',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  "Use your device camera to scan barcodes",
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+                onTap: () => Navigator.pop(ctx, true),
+              ),
             ),
-            ListTile(
-              leading: Icon(Icons.scanner_outlined),
-              title: Text(AppLocalizations.of(context)?.useHardwareScanner ??
-                  'Use Hardware Scanner'),
-              onTap: () => Navigator.pop(ctx, false),
+            SizedBox(height: 12),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: ListTile(
+                leading: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF356033).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.scanner_outlined, color: Color(0xFF356033)),
+                ),
+                title: Text(
+                  AppLocalizations.of(context)?.useHardwareScanner ??
+                      'Use Hardware Scanner',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  "Use hardware scanner to scan barcodes",
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+                onTap: () => Navigator.pop(ctx, false),
+              ),
             ),
           ],
         ),
@@ -85,6 +139,11 @@ class _ParametrePageState extends State<ParametrePage> {
           content: Text(
             // Use a simple string instead of a non-existent localization method
             '${AppLocalizations.of(context)?.scanMode ?? 'Scan mode'} set to ${useCamera ? (AppLocalizations.of(context)?.cameraScanner ?? 'Camera') : (AppLocalizations.of(context)?.hardwareScanner ?? 'Hardware Scanner')}',
+          ),
+          backgroundColor: Color(0xFF356033),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
       );
@@ -102,45 +161,300 @@ class _ParametrePageState extends State<ParametrePage> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)?.parametrePage ?? 'Parametre'),
+        title: Text(
+          AppLocalizations.of(context)?.parametrePage ?? 'Settings',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.blue,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text(AppLocalizations.of(context)?.scanMode ?? 'Scan Mode'),
-            subtitle: Text(scanModeText),
-            trailing: ElevatedButton(
-              onPressed: _selectScanMode,
-              child: Text(AppLocalizations.of(context)?.change ?? 'Change'),
+        backgroundColor: Color(0xFF356033),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF356033),
+                Color(0xFF2D5129),
+              ],
             ),
           ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.language),
-            title: Text(AppLocalizations.of(context)?.language ?? 'Language'),
-            subtitle: Text(_language ??
-                (AppLocalizations.of(context)?.notSet ?? 'Not set')),
+        ),
+      ),
+      backgroundColor: Colors.grey[50],
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          // Scan Mode Section
+          Card(
+            elevation: 2,
+            margin: EdgeInsets.only(bottom: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF356033).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.settings,
+                          color: Color(0xFF356033),
+                          size: 24,
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)?.scanMode ??
+                                  'Scan Mode',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[800],
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              scanModeText,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF356033), Color(0xFF2D5129)],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: _selectScanMode,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context)?.change ?? 'Change',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: () => _setLanguage("fr"),
-                child: Text("Français"),
+
+          // Language Section
+          Card(
+            elevation: 2,
+            margin: EdgeInsets.only(bottom: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF356033).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.language,
+                          color: Color(0xFF356033),
+                          size: 24,
+                        ),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)?.language ??
+                                  'Language',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[800],
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              _language ??
+                                  (AppLocalizations.of(context)?.notSet ??
+                                      'Not set'),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          margin: EdgeInsets.only(right: 8),
+                          decoration: BoxDecoration(
+                            gradient: _language == "fr"
+                                ? LinearGradient(colors: [
+                                    Color(0xFF356033),
+                                    Color(0xFF2D5129)
+                                  ])
+                                : null,
+                            borderRadius: BorderRadius.circular(20),
+                            border: _language != "fr"
+                                ? Border.all(color: Color(0xFF356033), width: 1)
+                                : null,
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () => _setLanguage("fr"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _language == "fr"
+                                  ? Colors.transparent
+                                  : Colors.white,
+                              shadowColor: Colors.transparent,
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            child: Text(
+                              "Français",
+                              style: TextStyle(
+                                color: _language == "fr"
+                                    ? Colors.white
+                                    : Color(0xFF356033),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          margin: EdgeInsets.symmetric(horizontal: 4),
+                          decoration: BoxDecoration(
+                            gradient: _language == "en"
+                                ? LinearGradient(colors: [
+                                    Color(0xFF356033),
+                                    Color(0xFF2D5129)
+                                  ])
+                                : null,
+                            borderRadius: BorderRadius.circular(20),
+                            border: _language != "en"
+                                ? Border.all(color: Color(0xFF356033), width: 1)
+                                : null,
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () => _setLanguage("en"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _language == "en"
+                                  ? Colors.transparent
+                                  : Colors.white,
+                              shadowColor: Colors.transparent,
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            child: Text(
+                              "English",
+                              style: TextStyle(
+                                color: _language == "en"
+                                    ? Colors.white
+                                    : Color(0xFF356033),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          margin: EdgeInsets.only(left: 8),
+                          decoration: BoxDecoration(
+                            gradient: _language == "ar"
+                                ? LinearGradient(colors: [
+                                    Color(0xFF356033),
+                                    Color(0xFF2D5129)
+                                  ])
+                                : null,
+                            borderRadius: BorderRadius.circular(20),
+                            border: _language != "ar"
+                                ? Border.all(color: Color(0xFF356033), width: 1)
+                                : null,
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () => _setLanguage("ar"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _language == "ar"
+                                  ? Colors.transparent
+                                  : Colors.white,
+                              shadowColor: Colors.transparent,
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            child: Text(
+                              "العربية",
+                              style: TextStyle(
+                                color: _language == "ar"
+                                    ? Colors.white
+                                    : Color(0xFF356033),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              ElevatedButton(
-                onPressed: () => _setLanguage("en"),
-                child: Text("English"),
-              ),
-              ElevatedButton(
-                onPressed: () => _setLanguage("ar"),
-                child: Text("العربية"),
-              ),
-            ],
+            ),
           ),
         ],
       ),

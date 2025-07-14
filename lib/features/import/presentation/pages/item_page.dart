@@ -147,16 +147,56 @@ class _ItemPageState extends State<ItemPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        heroTag: "item_page_fab",
-        onPressed: () => _showAddOptionsDialog(context),
-        tooltip: 'Add Items',
-        child: Icon(Icons.add),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0xFF356033).withOpacity(0.3),
+              blurRadius: 15,
+              offset: Offset(0, 8),
+            ),
+          ],
+        ),
+        child: FloatingActionButton.extended(
+          heroTag: "item_page_fab",
+          backgroundColor: Color(0xFF356033),
+          foregroundColor: Colors.white,
+          onPressed: () => _showAddOptionsDialog(context),
+          icon: Icon(Icons.add_rounded, size: 24),
+          label: Text(
+            'Add Items',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+        ),
       ),
       appBar: AppBar(
-        title: const Text('Item List'),
+        title: const Text(
+          'Inventory Management',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+          ),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.blue,
+        backgroundColor: Color(0xFF356033),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF356033),
+                Color(0xFF2D5129),
+              ],
+            ),
+          ),
+        ),
 
         // actions: [
         //   IconButton(
@@ -218,20 +258,59 @@ class _ItemPageState extends State<ItemPage> {
                       : "guest@example.com";
                 }
 
-                return UserAccountsDrawerHeader(
-                  accountName: Text(name),
-                  accountEmail: Text(email),
-                  currentAccountPicture: CircleAvatar(
-                    backgroundColor: Colors.white,
-                    backgroundImage: (profileState is ProfileLoaded &&
-                            profileState.profile.avatarBase64 != null)
-                        ? MemoryImage(
-                            base64Decode(profileState.profile.avatarBase64!))
-                        : null,
-                    child: (profileState is! ProfileLoaded ||
-                            profileState.profile.avatarBase64 == null)
-                        ? const Icon(Icons.person, size: 40, color: Colors.blue)
-                        : null,
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFF356033),
+                        Color(0xFF2D5129),
+                      ],
+                    ),
+                  ),
+                  child: UserAccountsDrawerHeader(
+                    decoration: BoxDecoration(color: Colors.transparent),
+                    accountName: Text(
+                      name,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    accountEmail: Text(
+                      email,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withOpacity(0.8),
+                      ),
+                    ),
+                    currentAccountPicture: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 2,
+                        ),
+                      ),
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white.withOpacity(0.2),
+                        backgroundImage: (profileState is ProfileLoaded &&
+                                profileState.profile.avatarBase64 != null)
+                            ? MemoryImage(base64Decode(
+                                profileState.profile.avatarBase64!))
+                            : null,
+                        child: (profileState is! ProfileLoaded ||
+                                profileState.profile.avatarBase64 == null)
+                            ? Icon(
+                                Icons.person_rounded,
+                                size: 40,
+                                color: Colors.white,
+                              )
+                            : null,
+                      ),
+                    ),
                   ),
                 );
               },
@@ -247,29 +326,79 @@ class _ItemPageState extends State<ItemPage> {
                       : "Hardware Scanner";
                 }
                 return ListTile(
-                  leading: Icon(Icons.settings),
+                  leading: Icon(Icons.settings, color: Color(0xFF356033)),
                   title: Text("scan mode: $scanModeText"),
                   onTap: () async {
                     bool? useCamera = await showDialog<bool>(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        title: Text("select scan mode"),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        title: Text(
+                          "select scan mode",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF356033),
+                          ),
+                        ),
                         content: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            ListTile(
-                              leading: Icon(Icons.camera_alt),
-                              title: Text("Use Camera "),
-                              subtitle: Text(
-                                  "Use your device camera to scan barcodes"),
-                              onTap: () => Navigator.pop(ctx, true),
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey[300]!),
+                              ),
+                              child: ListTile(
+                                leading: Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF356033).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(Icons.camera_alt,
+                                      color: Color(0xFF356033)),
+                                ),
+                                title: Text(
+                                  "Use Camera",
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                subtitle: Text(
+                                  "Use your device camera to scan barcodes",
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.grey[600]),
+                                ),
+                                onTap: () => Navigator.pop(ctx, true),
+                              ),
                             ),
-                            ListTile(
-                              leading: Icon(Icons.scanner_outlined),
-                              title: Text("Use  Scanner"),
-                              subtitle:
-                                  Text("Use hardware scanner to scan barcodes"),
-                              onTap: () => Navigator.pop(ctx, false),
+                            SizedBox(height: 12),
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey[300]!),
+                              ),
+                              child: ListTile(
+                                leading: Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF356033).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(Icons.scanner_outlined,
+                                      color: Color(0xFF356033)),
+                                ),
+                                title: Text(
+                                  "Use  Scanner",
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                subtitle: Text(
+                                  "Use hardware scanner to scan barcodes",
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.grey[600]),
+                                ),
+                                onTap: () => Navigator.pop(ctx, false),
+                              ),
                             ),
                           ],
                         ),
@@ -282,6 +411,11 @@ class _ItemPageState extends State<ItemPage> {
                         SnackBar(
                           content: Text(
                               'Scan mode set to ${useCamera ? "Camera" : "Hardware Scanner"}'),
+                          backgroundColor: Color(0xFF356033),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       );
 
@@ -294,7 +428,7 @@ class _ItemPageState extends State<ItemPage> {
             ),
             Divider(),
             ListTile(
-              leading: Icon(Icons.person),
+              leading: Icon(Icons.person, color: Color(0xFF356033)),
               title: Text("Profile"),
               subtitle: Text("View and edit your profile"),
               onTap: () {
@@ -304,16 +438,39 @@ class _ItemPageState extends State<ItemPage> {
             ),
             Divider(),
             ListTile(
-              leading: Icon(Icons.info),
+              leading: Icon(Icons.info, color: Color(0xFF356033)),
               title: Text("About"),
               subtitle: Text("Learn more about this app"),
               onTap: () {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: Text("About"),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    title: Text(
+                      "About",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF356033),
+                      ),
+                    ),
                     content: Text(
-                        "This app is a demo for managing items with barcode scanning capabilities."),
+                      "This app is a demo for managing items with barcode scanning capabilities.",
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          "OK",
+                          style: TextStyle(
+                            color: Color(0xFF356033),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 );
                 Navigator.pop(context);
