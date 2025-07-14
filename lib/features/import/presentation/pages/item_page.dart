@@ -11,6 +11,9 @@ import 'package:flutter_stock_scanner/features/import/domain/entities/item.dart'
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_bloc.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_event.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_state.dart';
+import 'package:flutter_stock_scanner/features/import/presentation/bloc/profile_bloc.dart';
+import 'package:flutter_stock_scanner/features/import/presentation/bloc/profile_event.dart';
+import 'package:flutter_stock_scanner/features/import/presentation/bloc/profile_state.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/ArchivePage.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/ParametrePage.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/ScanPage.dart';
@@ -36,6 +39,17 @@ class ItemPage extends StatefulWidget {
 
 class _ItemPageState extends State<ItemPage> {
   final List<Item> _items = []; // Only for export, do not use for UI display
+
+  @override
+  void initState() {
+    super.initState();
+    // Load profile data after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<ProfileBloc>().add(const LoadProfileEvent());
+      }
+    });
+  }
 
   Future<void> _pickExcelFile(BuildContext context) async {
     final (items, err) = await ItemExcelImporter.pickAndParseExcel();
@@ -134,35 +148,10 @@ class _ItemPageState extends State<ItemPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        heroTag: "item_page_fab",
         onPressed: () => _showAddOptionsDialog(context),
         tooltip: 'Add Items',
         child: Icon(Icons.add),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 0, // Always 0 for Items tab
-        selectedItemColor: Colors.blue,
-        onTap: (index) {
-          if (index == 0) return; // Already on Items
-          if (index == 1) {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (_) => ScanPage()));
-          } else if (index == 2) {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (_) => ArchivePage()));
-          } else if (index == 3) {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (_) => ParametrePage()));
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Items'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.qr_code_scanner), label: 'Scan'),
-          BottomNavigationBarItem(icon: Icon(Icons.archive), label: 'Archive'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Parametre'),
-        ],
       ),
       appBar: AppBar(
         title: const Text('Item List'),
@@ -215,13 +204,37 @@ class _ItemPageState extends State<ItemPage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            UserAccountsDrawerHeader(
-              accountName: Text("Amine lm"),
-              accountEmail: Text("amine@gmail.com"),
-              currentAccountPicture: CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(Icons.person, size: 40, color: Colors.blue),
-              ),
+            BlocBuilder<ProfileBloc, ProfileState>(
+              builder: (context, profileState) {
+                String name = "Guest User";
+                String email = "guest@example.com";
+
+                if (profileState is ProfileLoaded) {
+                  name = profileState.profile.name.isNotEmpty
+                      ? profileState.profile.name
+                      : "Guest User";
+                  email = profileState.profile.email.isNotEmpty
+                      ? profileState.profile.email
+                      : "guest@example.com";
+                }
+
+                return UserAccountsDrawerHeader(
+                  accountName: Text(name),
+                  accountEmail: Text(email),
+                  currentAccountPicture: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    backgroundImage: (profileState is ProfileLoaded &&
+                            profileState.profile.avatarBase64 != null)
+                        ? MemoryImage(
+                            base64Decode(profileState.profile.avatarBase64!))
+                        : null,
+                    child: (profileState is! ProfileLoaded ||
+                            profileState.profile.avatarBase64 == null)
+                        ? const Icon(Icons.person, size: 40, color: Colors.blue)
+                        : null,
+                  ),
+                );
+              },
             ),
             FutureBuilder(
               future: loadScanMode(),
@@ -285,30 +298,8 @@ class _ItemPageState extends State<ItemPage> {
               title: Text("Profile"),
               subtitle: Text("View and edit your profile"),
               onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: Text("Profile"),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircleAvatar(
-                          radius: 30,
-                          child: Icon(
-                            Icons.person,
-                            size: 40,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text("Name: Amine lm"),
-                        Text("amine@gmail.com"),
-                        SizedBox(height: 10),
-                        Text("this is a demo profile"),
-                      ],
-                    ),
-                  ),
-                );
-                Navigator.pop(context);
+                Navigator.pop(context); // Close drawer first
+                Navigator.pushNamed(context, '/profile');
               },
             ),
             Divider(),

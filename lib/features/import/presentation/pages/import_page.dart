@@ -245,6 +245,7 @@ class _ImportPageState extends State<ImportPage> {
                         bottom: 10,
                         right: 10,
                         child: FloatingActionButton(
+                          heroTag: "import_page_fab",
                           onPressed: () => _showManualAddDialog(),
                           tooltip: 'Add Item Manually',
                           child: Icon(Icons.add),

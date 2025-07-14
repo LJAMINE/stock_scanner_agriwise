@@ -11,15 +11,12 @@ class EditItemDialog extends StatefulWidget {
 
 class _EditItemDialogState extends State<EditItemDialog> {
   late TextEditingController labelController;
-  late TextEditingController descriptionController;
   late TextEditingController quantityController;
 
   @override
   void initState() {
     super.initState();
     labelController = TextEditingController(text: widget.item.label);
-    descriptionController =
-        TextEditingController(text: widget.item.description);
     quantityController =
         TextEditingController(text: widget.item.quantity.toString());
   }
@@ -42,10 +39,6 @@ class _EditItemDialogState extends State<EditItemDialog> {
               decoration: const InputDecoration(labelText: "Label"),
             ),
             TextField(
-              controller: descriptionController,
-              decoration: const InputDecoration(labelText: "Description"),
-            ),
-            TextField(
               controller: quantityController,
               decoration: const InputDecoration(labelText: "Quantity"),
               keyboardType: TextInputType.number,
@@ -61,7 +54,6 @@ class _EditItemDialogState extends State<EditItemDialog> {
         ElevatedButton(
           onPressed: () {
             final newLabel = labelController.text.trim();
-            final newDesc = descriptionController.text.trim();
             final newQty = int.tryParse(quantityController.text.trim()) ?? 0;
 
             if (newLabel.isNotEmpty) {
@@ -71,9 +63,11 @@ class _EditItemDialogState extends State<EditItemDialog> {
                 Item(
                   code: widget.item.code,
                   label: newLabel,
-                  description: newDesc,
+                  description:
+                      widget.item.description, // Keep existing description
                   date: widget.item.date,
                   quantity: newQty,
+                  imageBase64: widget.item.imageBase64, // Keep existing image
                 ),
               );
             }
