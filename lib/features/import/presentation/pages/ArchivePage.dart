@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_stock_scanner/features/import/domain/entities/archive_batch.dart';
 import 'package:flutter_stock_scanner/features/import/data/data_sources/archive_local_data_source_impl.dart';
 import 'package:flutter_stock_scanner/features/import/data/repositories/archive_repository_impl.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
+import 'package:excel/excel.dart' as ExcelPackage;
+import 'package:file_saver/file_saver.dart';
+import 'dart:typed_data';
 
 class ArchivePage extends StatefulWidget {
   const ArchivePage({super.key});
@@ -310,7 +317,7 @@ class _ArchivePageState extends State<ArchivePage> {
                                         ],
                                       ),
                                     ),
-                                    SizedBox(width: 16),
+                                    SizedBox(width: 7),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -328,7 +335,7 @@ class _ArchivePageState extends State<ArchivePage> {
                                           Text(
                                             '${batch.items.length} items',
                                             style: TextStyle(
-                                              fontSize: 14,
+                                              fontSize: 12,
                                               color: Colors.grey[600],
                                               fontWeight: FontWeight.w500,
                                             ),
@@ -354,18 +361,60 @@ class _ArchivePageState extends State<ArchivePage> {
                                         ],
                                       ),
                                     ),
-                                    Container(
-                                      padding: EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            Color(0xFF356033).withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Icon(
-                                        Icons.arrow_forward_ios_rounded,
-                                        size: 16,
-                                        color: Color(0xFF356033),
-                                      ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        // Export button
+                                        Container(
+                                          margin: EdgeInsets.only(right: 8),
+                                          decoration: BoxDecoration(
+                                            color: Color(0xFF356033)
+                                                .withOpacity(0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: IconButton(
+                                            icon: Icon(
+                                              Icons.file_download_rounded,
+                                              size: 18,
+                                              color: Color(0xFF356033),
+                                            ),
+                                            onPressed: () =>
+                                                _exportBatchToExcel(
+                                                    batch, index + 1),
+                                            tooltip: 'Export Batch',
+                                            padding: EdgeInsets.all(8),
+                                            constraints: BoxConstraints(
+                                              minWidth: 36,
+                                              minHeight: 36,
+                                            ),
+                                          ),
+                                        ),
+                                        // View details button
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Color(0xFF356033)
+                                                .withOpacity(0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: IconButton(
+                                            icon: Icon(
+                                              Icons.visibility_rounded,
+                                              size: 18,
+                                              color: Color(0xFF356033),
+                                            ),
+                                            onPressed: () => _showBatchDetails(
+                                                context, batch),
+                                            tooltip: 'View Details',
+                                            padding: EdgeInsets.all(8),
+                                            constraints: BoxConstraints(
+                                              minWidth: 36,
+                                              minHeight: 36,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -390,8 +439,317 @@ class _ArchivePageState extends State<ArchivePage> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) => _BatchDetailSheet(batch: batch),
+      builder: (_) => _BatchDetailSheet(
+        batch: batch,
+        onExport: (batch) {
+          // Find the batch index for export
+          _batchesFuture.then((batches) {
+            final batchIndex = batches.indexOf(batch) + 1;
+            _exportBatchToExcel(batch, batchIndex);
+          });
+        },
+      ),
     );
+  }
+
+  // Export batch to Excel file
+  Future<void> _exportBatchToExcel(ArchiveBatch batch, int batchNumber) async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: Container(
+          padding: EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF356033)),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Exporting Batch #$batchNumber...',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF356033),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    try {
+      final excel = ExcelPackage.Excel.createExcel();
+      final sheet = excel['Batch_$batchNumber'];
+
+      // Add header
+      sheet.appendRow([
+        ExcelPackage.TextCellValue('Code'),
+        ExcelPackage.TextCellValue('Label'),
+        ExcelPackage.TextCellValue('Description'),
+        ExcelPackage.TextCellValue('Date'),
+        ExcelPackage.TextCellValue('Quantity'),
+      ]);
+
+      // Add batch items
+      for (final item in batch.items) {
+        sheet.appendRow([
+          ExcelPackage.TextCellValue(item.code),
+          ExcelPackage.TextCellValue(item.label),
+          ExcelPackage.TextCellValue(item.description),
+          ExcelPackage.TextCellValue(item.date),
+          ExcelPackage.IntCellValue(item.quantity),
+        ]);
+      }
+
+      final excelBytes = excel.save();
+      if (excelBytes == null) throw Exception('Failed to generate Excel file.');
+
+      final filePath = await FileSaver.instance.saveFile(
+        name: 'batch_${batchNumber}_${DateTime.now().millisecondsSinceEpoch}',
+        bytes: Uint8List.fromList(excelBytes),
+        ext: 'xlsx',
+        mimeType: MimeType.microsoftExcel,
+      );
+
+      // Close loading dialog
+      Navigator.pop(context);
+
+      _showExportSuccessDialog(filePath, batch, batchNumber);
+    } catch (e) {
+      // Close loading dialog
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Export failed: $e'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+    }
+  }
+
+  // Show export success dialog with action options
+  void _showExportSuccessDialog(
+      String filePath, ArchiveBatch batch, int batchNumber) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle
+              Container(
+                margin: EdgeInsets.only(top: 12, bottom: 20),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              // Header
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF356033), Color(0xFF2D5129)],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(Icons.file_download,
+                          color: Colors.white, size: 24),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Export Complete',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF356033),
+                            ),
+                          ),
+                          Text(
+                            'Batch #$batchNumber exported successfully',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24),
+              // Action buttons
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    _buildActionButton(
+                      icon: Icons.open_in_new,
+                      title: 'Open File',
+                      subtitle: 'Open the Excel file',
+                      onTap: () {
+                        Navigator.pop(context);
+                        OpenFilex.open(filePath);
+                      },
+                    ),
+                    SizedBox(height: 12),
+                    _buildActionButton(
+                      icon: Icons.folder_open,
+                      title: 'Save to Downloads',
+                      subtitle: 'Choose location to save',
+                      onTap: () async {
+                        Navigator.pop(context);
+                        await _saveToCustomLocation(filePath);
+                      },
+                    ),
+                    SizedBox(height: 12),
+                    _buildActionButton(
+                      icon: Icons.share,
+                      title: 'Share',
+                      subtitle: 'Share with others',
+                      onTap: () async {
+                        Navigator.pop(context);
+                        try {
+                          await Share.shareXFiles(
+                            [XFile(filePath)],
+                            text:
+                                'Batch #$batchNumber - ${batch.items.length} items exported from AgriWise Stock Scanner',
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Share failed: $e')),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Build action button widget
+  Widget _buildActionButton({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[300]!),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: ListTile(
+        leading: Container(
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Color(0xFF356033).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: Color(0xFF356033)),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+        ),
+        trailing:
+            Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF356033)),
+        onTap: onTap,
+      ),
+    );
+  }
+
+  // Save file to custom location
+  Future<void> _saveToCustomLocation(String sourcePath) async {
+    try {
+      String? pickedDir = await FilePicker.platform.getDirectoryPath(
+        dialogTitle: 'Select folder to save Excel file',
+      );
+      if (pickedDir != null) {
+        final fileName = sourcePath.split('/').last;
+        final destPath = '$pickedDir/$fileName';
+        final sourceFile = File(sourcePath);
+        final bytes = await sourceFile.readAsBytes();
+        final destFile = File(destPath);
+        await destFile.writeAsBytes(bytes);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('File saved to: $destPath'),
+            backgroundColor: Color(0xFF356033),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('File save cancelled'),
+            backgroundColor: Colors.orange,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Save failed: $e'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+    }
   }
 }
 
@@ -401,7 +759,8 @@ String _formatDate(DateTime date) {
 
 class _BatchDetailSheet extends StatelessWidget {
   final ArchiveBatch batch;
-  const _BatchDetailSheet({required this.batch});
+  final Function(ArchiveBatch)? onExport;
+  const _BatchDetailSheet({required this.batch, this.onExport});
 
   @override
   Widget build(BuildContext context) {
@@ -470,6 +829,24 @@ class _BatchDetailSheet extends StatelessWidget {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                  // Export button in batch detail
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFF356033).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.file_download_rounded,
+                        color: Color(0xFF356033),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context); // Close the sheet first
+                        onExport?.call(batch); // Call the export callback
+                      },
+                      tooltip: 'Export Batch',
                     ),
                   ),
                 ],
