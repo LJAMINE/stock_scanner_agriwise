@@ -44,9 +44,13 @@ class ItemExcelImporter {
 
         final code = row[codeIdx]?.value?.toString() ?? '';
         final label = row[labelIdx]?.value?.toString() ?? '';
-        final description = '';
-        final date = '';
-        final quantity = 0;
+        final description = row[descIdx]?.value?.toString() ?? '';
+        final date = row[dateIdx]?.value?.toString() ?? '';
+
+        // Parse quantity as double, supporting both comma and dot as decimal separator
+        final qtyString = row[qtyIdx]?.value?.toString() ?? '0';
+        final normalizedQtyString = qtyString.replaceAll(',', '.');
+        final quantity = double.tryParse(normalizedQtyString) ?? 0.0;
 
         if (code.isEmpty || label.isEmpty) continue;
 

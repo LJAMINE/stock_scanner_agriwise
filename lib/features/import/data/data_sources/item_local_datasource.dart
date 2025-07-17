@@ -22,7 +22,7 @@ class ItemLocalDataSource {
     final path = join(databasePath, 'items.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2, // Increment version to trigger onUpgrade
       onCreate: (db, version) async {
         await db.execute('''
         CREATE TABLE items(
@@ -30,10 +30,36 @@ class ItemLocalDataSource {
             label TEXT,
             description TEXT,
             date TEXT,
-            quantity INTEGER, 
+            quantity REAL, 
             imageBase64 TEXT
         )
         ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          // Migrate from INTEGER to REAL for quantity
+          await db.execute('''
+          CREATE TABLE items_temp(
+           code TEXT PRIMARY KEY,
+              label TEXT,
+              description TEXT,
+              date TEXT,
+              quantity REAL, 
+              imageBase64 TEXT
+          )
+          ''');
+
+          // Copy data, converting INTEGER to REAL
+          await db.execute('''
+          INSERT INTO items_temp (code, label, description, date, quantity, imageBase64)
+          SELECT code, label, description, date, CAST(quantity AS REAL), imageBase64 
+          FROM items
+          ''');
+
+          // Drop old table and rename temp table
+          await db.execute('DROP TABLE items');
+          await db.execute('ALTER TABLE items_temp RENAME TO items');
+        }
       },
     );
   }

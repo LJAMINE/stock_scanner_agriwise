@@ -25,7 +25,7 @@ class _ScanPageState extends State<ScanPage> {
       listener: (context, state) async {
         if (state is ItemFound && _pendingScanCode != null) {
           final item = state.item;
-          final newQty = await showDialog<int>(
+          final newQty = await showDialog<double>(
             context: context,
             builder: (ctx) => QtyDialog(
               initialQty: item.quantity,
@@ -155,119 +155,17 @@ class _ScanPageState extends State<ScanPage> {
                     child: SizedBox(
                       height:
                           250, // Reduced from 300 to 250 to prevent overflow
-                      child: Stack(
-                        children: [
-                          MobileScanner(
-                            onDetect: (capture) {
-                              if (capture.barcodes.isEmpty) return;
-                              final barcode = capture.barcodes.first.rawValue;
-                              if (_pendingScanCode == null && barcode != null) {
-                                _pendingScanCode = barcode;
-                                context
-                                    .read<ItemBloc>()
-                                    .add(SearchItemByCodeEvent(barcode));
-                              }
-                            },
-                          ),
-                          // Scan overlay
-                          Center(
-                            child: Container(
-                              width: 220, // Reduced from 250
-                              height: 130, // Reduced from 150
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Color(0xFF356033),
-                                  width: 3,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Stack(
-                                children: [
-                                  // Corner decorations
-                                  Positioned(
-                                    top: -1,
-                                    left: -1,
-                                    child: Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                        color: Color(0xFF356033),
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(10),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top: -1,
-                                    right: -1,
-                                    child: Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                        color: Color(0xFF356033),
-                                        borderRadius: BorderRadius.only(
-                                          topRight: Radius.circular(10),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: -1,
-                                    left: -1,
-                                    child: Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                        color: Color(0xFF356033),
-                                        borderRadius: BorderRadius.only(
-                                          bottomLeft: Radius.circular(10),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: -1,
-                                    right: -1,
-                                    child: Container(
-                                      width: 30,
-                                      height: 30,
-                                      decoration: BoxDecoration(
-                                        color: Color(0xFF356033),
-                                        borderRadius: BorderRadius.only(
-                                          bottomRight: Radius.circular(10),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          // Scan instruction
-                          Positioned(
-                            bottom: 20,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              margin: EdgeInsets.symmetric(horizontal: 20),
-                              padding: EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Color(0xFF356033).withOpacity(0.9),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                'Position barcode within the frame',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                      child: MobileScanner(
+                        onDetect: (capture) {
+                          if (capture.barcodes.isEmpty) return;
+                          final barcode = capture.barcodes.first.rawValue;
+                          if (_pendingScanCode == null && barcode != null) {
+                            _pendingScanCode = barcode;
+                            context
+                                .read<ItemBloc>()
+                                .add(SearchItemByCodeEvent(barcode));
+                          }
+                        },
                       ),
                     ),
                   ),
@@ -293,62 +191,8 @@ class _ScanPageState extends State<ScanPage> {
                           ? 60
                           : 50), // Further reduced padding to account for save button
                   child: scannedItems.isEmpty
-                      ? Center(
-                          child: Container(
-                            padding: EdgeInsets.all(32),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.all(24),
-                                  decoration: BoxDecoration(
-                                    color: Color(0xFF356033).withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Icon(
-                                    Icons.qr_code_scanner_rounded,
-                                    size: 80,
-                                    color: Color(0xFF356033),
-                                  ),
-                                ),
-                                SizedBox(height: 24),
-                                Text(
-                                  'Ready to Scan',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF356033),
-                                  ),
-                                ),
-                                SizedBox(height: 12),
-                                // SizedBox(height: 32),
-                                // Container(
-                                //   padding: EdgeInsets.symmetric(
-                                //     horizontal: 20,
-                                //     vertical: 12,
-                                //   ),
-                                //   decoration: BoxDecoration(
-                                //     color: Color(0xFF356033).withOpacity(0.1),
-                                //     borderRadius: BorderRadius.circular(25),
-                                //     border: Border.all(
-                                //       color: Color(0xFF356033).withOpacity(0.3),
-                                //     ),
-                                //   ),
-                                //   child: Row(
-                                //     mainAxisSize: MainAxisSize.min,
-                                //     children: [
-                                //       Icon(
-                                //         Icons.lightbulb_outline,
-                                //         size: 16,
-                                //         color: Color(0xFF356033),
-                                //       ),
-                                //     ],
-                                //   ),
-                                // ),
-                              ],
-                            ),
-                          ),
-                        )
+                      ? SizedBox
+                          .shrink() // Just empty space when no items scanned
                       : Container(
                           margin: EdgeInsets.fromLTRB(16, 16, 16,
                               8), // Reduced bottom margin from 16 to 8
@@ -365,82 +209,6 @@ class _ScanPageState extends State<ScanPage> {
                           ),
                           child: Column(
                             children: [
-                              // Header
-                              Container(
-                                padding: EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      Color(0xFF356033),
-                                      Color(0xFF2D5129),
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(20),
-                                    topRight: Radius.circular(20),
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Icon(
-                                        Icons.inventory_2_rounded,
-                                        color: Colors.white,
-                                        size: 24,
-                                      ),
-                                    ),
-                                    SizedBox(width: 12),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Scanned Items',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        Text(
-                                          '${scannedItems.length} items in batch',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color:
-                                                Colors.white.withOpacity(0.8),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Spacer(),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                      child: Text(
-                                        '${scannedItems.length}',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF356033),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
                               // Table
                               Expanded(
                                 child: SingleChildScrollView(
@@ -463,14 +231,14 @@ class _ScanPageState extends State<ScanPage> {
                                             color: Color(0xFF356033)
                                                 .withOpacity(0.05),
                                             borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(11),
-                                              topRight: Radius.circular(11),
+                                              topLeft: Radius.circular(12),
+                                              topRight: Radius.circular(12),
                                             ),
                                           ),
                                           child: Row(
                                             children: [
                                               Expanded(
-                                                flex: 2,
+                                                flex: 3,
                                                 child: Text(
                                                   'Code',
                                                   style: TextStyle(
@@ -481,7 +249,7 @@ class _ScanPageState extends State<ScanPage> {
                                                 ),
                                               ),
                                               Expanded(
-                                                flex: 3,
+                                                flex: 4,
                                                 child: Text(
                                                   'Product Name',
                                                   style: TextStyle(
@@ -492,7 +260,7 @@ class _ScanPageState extends State<ScanPage> {
                                                 ),
                                               ),
                                               Expanded(
-                                                flex: 1,
+                                                flex: 2,
                                                 child: Text(
                                                   'Qty',
                                                   textAlign: TextAlign.center,
@@ -533,7 +301,7 @@ class _ScanPageState extends State<ScanPage> {
                                             child: Row(
                                               children: [
                                                 Expanded(
-                                                  flex: 2,
+                                                  flex: 3,
                                                   child: Container(
                                                     padding:
                                                         EdgeInsets.symmetric(
@@ -562,7 +330,7 @@ class _ScanPageState extends State<ScanPage> {
                                                 ),
                                                 SizedBox(width: 12),
                                                 Expanded(
-                                                  flex: 3,
+                                                  flex: 4,
                                                   child: Text(
                                                     item.label,
                                                     overflow:
@@ -578,13 +346,13 @@ class _ScanPageState extends State<ScanPage> {
                                                 ),
                                                 SizedBox(width: 12),
                                                 Expanded(
-                                                  flex: 1,
+                                                  flex: 2,
                                                   child: Center(
                                                     child: Container(
                                                       padding:
                                                           EdgeInsets.symmetric(
-                                                        vertical: 6,
-                                                        horizontal: 12,
+                                                        vertical: 4,
+                                                        horizontal: 8,
                                                       ),
                                                       decoration: BoxDecoration(
                                                         gradient:
@@ -596,16 +364,22 @@ class _ScanPageState extends State<ScanPage> {
                                                         ),
                                                         borderRadius:
                                                             BorderRadius
-                                                                .circular(20),
+                                                                .circular(12),
                                                       ),
                                                       child: Text(
-                                                        '${item.quantity}',
+                                                        item.quantity ==
+                                                                item.quantity
+                                                                    .toInt()
+                                                            ? '${item.quantity.toInt()}'
+                                                            : '${item.quantity}',
                                                         style: TextStyle(
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           color: Colors.white,
-                                                          fontSize: 14,
+                                                          fontSize: 13,
                                                         ),
+                                                        textAlign:
+                                                            TextAlign.center,
                                                       ),
                                                     ),
                                                   ),
@@ -635,37 +409,6 @@ class _ScanPageState extends State<ScanPage> {
                                   ),
                                   child: Column(
                                     children: [
-                                      Row(
-                                        children: [
-                                          Container(
-                                            padding: EdgeInsets.all(6),
-                                            decoration: BoxDecoration(
-                                              color: Color(0xFF356033)
-                                                  .withOpacity(0.1),
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            child: Icon(
-                                              Icons.check_circle_outline,
-                                              size: 18,
-                                              color: Color(0xFF356033),
-                                            ),
-                                          ),
-                                          SizedBox(width: 12),
-                                          Expanded(
-                                            child: Text(
-                                              'Ready to save ${scannedItems.length} items to your archive',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: Color(0xFF356033),
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                          height: 12), // Reduced from 16 to 12
                                       Container(
                                         width: double.infinity,
                                         decoration: BoxDecoration(
@@ -695,7 +438,7 @@ class _ScanPageState extends State<ScanPage> {
                                             size: 20,
                                           ),
                                           label: Text(
-                                            'Save Batch to Archive',
+                                            'Save Batch',
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,
@@ -707,14 +450,15 @@ class _ScanPageState extends State<ScanPage> {
                                             backgroundColor: Colors.transparent,
                                             shadowColor: Colors.transparent,
                                             padding: EdgeInsets.symmetric(
-                                                vertical:
-                                                    14), // Reduced from 18 to 14
+                                                vertical: 14),
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(16),
                                             ),
                                           ),
                                           onPressed: () {
+                                            print(
+                                                'DEBUG: Save button pressed with ${scannedItems.length} items');
                                             // Save scannedItems to archive
                                             context
                                                 .read<ItemBloc>()
@@ -737,61 +481,11 @@ class _ScanPageState extends State<ScanPage> {
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
                                               SnackBar(
-                                                content: Container(
-                                                  padding: EdgeInsets.symmetric(
-                                                      vertical: 4),
-                                                  child: Row(
-                                                    children: [
-                                                      Container(
-                                                        padding:
-                                                            EdgeInsets.all(8),
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: Colors.white
-                                                              .withOpacity(0.2),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(12),
-                                                        ),
-                                                        child: Icon(
-                                                          Icons
-                                                              .check_circle_rounded,
-                                                          color: Colors.white,
-                                                          size: 20,
-                                                        ),
-                                                      ),
-                                                      SizedBox(width: 12),
-                                                      Expanded(
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
-                                                          children: [
-                                                            Text(
-                                                              'Success!',
-                                                              style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontSize: 16,
-                                                              ),
-                                                            ),
-                                                            Text(
-                                                              'Batch saved to archive and items updated',
-                                                              style: TextStyle(
-                                                                  fontSize: 14),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
+                                                content: Text(
+                                                    'Batch saved successfully!'),
                                                 backgroundColor:
                                                     Color(0xFF356033),
-                                                duration: Duration(seconds: 4),
+                                                duration: Duration(seconds: 2),
                                                 behavior:
                                                     SnackBarBehavior.floating,
                                                 shape: RoundedRectangleBorder(

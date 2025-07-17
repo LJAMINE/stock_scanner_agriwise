@@ -103,11 +103,15 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     });
 
     on<SaveBatchToArchiveEvent>((event, emit) async {
+      print(
+          'DEBUG: SaveBatchToArchiveEvent received with ${event.items.length} items');
       emit(ItemLoading());
       try {
-        saveBatchToArchiveUseCase(event.items, event.date);
+        await saveBatchToArchiveUseCase(event.items, event.date);
+        print('DEBUG: saveBatchToArchiveUseCase completed successfully');
         emit(BatchSavedSuccess());
       } catch (e) {
+        print('DEBUG: Error in SaveBatchToArchiveEvent: $e');
         emit(ItemError(e.toString()));
       }
     });

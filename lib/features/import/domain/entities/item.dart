@@ -3,7 +3,7 @@ class Item {
   final String label;
   final String description;
   final String date;
-  final int quantity;
+  final double quantity;
   final String? imageBase64;
 
   const Item({

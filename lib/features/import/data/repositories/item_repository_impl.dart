@@ -1,6 +1,4 @@
 import 'package:excel/excel.dart';
-import 'package:file_picker/file_picker.dart';
-import 'dart:io';
 import 'package:flutter_stock_scanner/features/import/data/data_sources/item_local_datasource.dart';
 import 'package:flutter_stock_scanner/features/import/data/models/item_model.dart';
 import 'package:flutter_stock_scanner/features/import/domain/entities/item.dart';
@@ -79,9 +77,9 @@ class ItemRepositoryImpl implements ItemRepository {
       sheet.appendRow([
         TextCellValue(item.code),
         TextCellValue(item.label),
-        TextCellValue(item.description ?? ''),
-        TextCellValue(item.date ?? ''),
-        IntCellValue(item.quantity ?? 0),
+        TextCellValue(item.description),
+        TextCellValue(item.date),
+        DoubleCellValue(item.quantity),
       ]);
     }
 
