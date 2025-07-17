@@ -8,5 +8,73 @@
   "hardwareScanner": "Hardware Scanner",
   "selectScanMode": "Select scan mode",
   "useCamera": "Use Camera",
-  "useHardwareScanner": "Use Hardware Scanner"
+  "useHardwareScanner": "Use Hardware Scanner",
+  
+  "scanItems": "Scan Items",
+  "startScan": "Start Scan",
+  "stopScan": "Stop Scan",
+  "saveBatch": "Save Batch",
+  "code": "Code",
+  "label": "Label",
+  "quantity": "Quantity",
+  "modifyQuantity": "modify quantity for",
+  "cancel": "Cancel",
+  "save": "Save",
+  "enterQuantity": "Enter quantity (e.g., 1.5 or 1,5)",
+  "enterValidQuantity": "Please enter a valid positive number",
+  "batchSavedSuccessfully": "Batch saved successfully!",
+  
+  "archiveHistory": "Archive History",
+  "loadingArchive": "Loading Archive...",
+  "noArchiveYet": "No Archive Yet",
+  "archivedBatchesDescription": "Your archived batches will appear here after scanning and saving items",
+  "startScanningTip": "Start scanning to create your first batch",
+  "savedBatches": "saved batches",
+  "items": "items",
+  "batch": "Batch",
+  "exportBatch": "Export Batch",
+  "viewDetails": "View Details",
+  "batchDetails": "Batch Details",
+  "itemsInBatch": "Items in this batch:",
+  "exportComplete": "Export Complete",
+  "exportedSuccessfully": "exported successfully",
+  "openFile": "Open File",
+  "openExcelFile": "Open the Excel file",
+  "saveToDownloads": "Save to Downloads",
+  "chooseLocationToSave": "Choose location to save",
+  "share": "Share",
+  "shareWithOthers": "Share with others",
+  "selectFolderToSave": "Select folder to save Excel file",
+  "fileSavedTo": "File saved to:",
+  "fileSaveCancelled": "File save cancelled",
+  "saveFailed": "Save failed:",
+  "exportFailed": "Export failed:",
+  "shareFailed": "Share failed:",
+  "exporting": "Exporting",
+  
+  "importExcel": "import excel or manually",
+  "chooseExcelFile": "Choose Excel File",
+  "itemNotFound": "Item not found:",
+  
+  "editItem": "Edit Item",
+  "enterValidLabelAndQuantity": "Please enter a valid label and positive quantity",
+  
+  "scan": "Scan",
+  "archive": "Archive",
+  "settings": "Settings",
+  "addItemManually": "Add Item manually",
+  "add": "Add",
+  "addItemsManually": "Add items manually",
+  "importedItems": "Imported {count} items!",
+  "@importedItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profile": "Profile",
+  "scanModePrefix": "scan mode:",
+  "defaultProfile": "Default Profile",
+  "profileEmail": "profile@stock.scanner"
 }

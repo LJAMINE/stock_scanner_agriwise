@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_stock_scanner/core/util/ItemExcelImporter.dart';
 import 'package:flutter_stock_scanner/core/util/editItemDialog.dart';
 import 'package:flutter_stock_scanner/core/util/imagebase64.dart';
 import 'package:flutter_stock_scanner/core/util/scan_mode_prefs.dart';
-import 'package:flutter_stock_scanner/core/util/startScan.dart';
 import 'package:flutter_stock_scanner/features/import/domain/entities/item.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_bloc.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_event.dart';
@@ -14,21 +14,12 @@ import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/it
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/profile_bloc.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/profile_event.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/profile_state.dart';
-import 'package:flutter_stock_scanner/features/import/presentation/pages/ArchivePage.dart';
-import 'package:flutter_stock_scanner/features/import/presentation/pages/ParametrePage.dart';
-import 'package:flutter_stock_scanner/features/import/presentation/pages/ScanPage.dart';
-import 'package:flutter_stock_scanner/features/import/presentation/pages/scanner_page.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:open_filex/open_filex.dart';
-// Add this import at the top with the others:
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
-
-import 'package:share_plus/share_plus.dart';
-// import 'package:share_plus/src/x_file.dart';
-import 'package:path_provider/path_provider.dart';
 
 class ItemPage extends StatefulWidget {
   const ItemPage({super.key});
@@ -38,8 +29,6 @@ class ItemPage extends StatefulWidget {
 }
 
 class _ItemPageState extends State<ItemPage> {
-  final List<Item> _items = []; // Only for export, do not use for UI display
-
   @override
   void initState() {
     super.initState();
@@ -62,7 +51,10 @@ class _ItemPageState extends State<ItemPage> {
     if (items != null && items.isNotEmpty) {
       context.read<ItemBloc>().add(ImportItemsEvent(items));
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Imported ${items.length} items!")),
+        SnackBar(
+            content: Text(
+                AppLocalizations.of(context)?.importedItems(items.length) ??
+                    "Imported ${items.length} items!")),
       );
     }
   }
@@ -74,7 +66,8 @@ class _ItemPageState extends State<ItemPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Add Item manually"),
+        title: Text(AppLocalizations.of(context)?.addItemManually ??
+            "Add Item manually"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -91,7 +84,7 @@ class _ItemPageState extends State<ItemPage> {
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel")),
+              child: Text(AppLocalizations.of(context)?.cancel ?? "Cancel")),
           ElevatedButton(
             onPressed: () {
               final code = codeController.text.trim();
@@ -109,7 +102,7 @@ class _ItemPageState extends State<ItemPage> {
               }
               Navigator.pop(context);
             },
-            child: Text("Add"),
+            child: Text(AppLocalizations.of(context)?.add ?? "Add"),
           ),
         ],
       ),
@@ -124,7 +117,8 @@ class _ItemPageState extends State<ItemPage> {
           children: [
             ListTile(
               leading: Icon(Icons.add),
-              title: Text('Add items manually'),
+              title: Text(AppLocalizations.of(context)?.addItemsManually ??
+                  'Add items manually'),
               onTap: () {
                 Navigator.pop(ctx);
                 _showManualAddDialog(context);
@@ -132,7 +126,8 @@ class _ItemPageState extends State<ItemPage> {
             ),
             ListTile(
               leading: Icon(Icons.upload_file),
-              title: Text('Choose Excel File'),
+              title: Text(AppLocalizations.of(context)?.chooseExcelFile ??
+                  'Choose Excel File'),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickExcelFile(context);
@@ -174,8 +169,8 @@ class _ItemPageState extends State<ItemPage> {
         ),
       ),
       appBar: AppBar(
-        title: const Text(
-          'Inventory Management',
+        title: Text(
+          AppLocalizations.of(context)?.items ?? 'Inventory Management',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5,
@@ -246,16 +241,20 @@ class _ItemPageState extends State<ItemPage> {
           children: [
             BlocBuilder<ProfileBloc, ProfileState>(
               builder: (context, profileState) {
-                String name = "Guest User";
-                String email = "guest@example.com";
+                String name = AppLocalizations.of(context)?.defaultProfile ??
+                    "Guest User";
+                String email = AppLocalizations.of(context)?.profileEmail ??
+                    "guest@example.com";
 
                 if (profileState is ProfileLoaded) {
                   name = profileState.profile.name.isNotEmpty
                       ? profileState.profile.name
-                      : "Guest User";
+                      : (AppLocalizations.of(context)?.defaultProfile ??
+                          "Guest User");
                   email = profileState.profile.email.isNotEmpty
                       ? profileState.profile.email
-                      : "guest@example.com";
+                      : (AppLocalizations.of(context)?.profileEmail ??
+                          "guest@example.com");
                 }
 
                 return Container(
@@ -318,16 +317,20 @@ class _ItemPageState extends State<ItemPage> {
             FutureBuilder(
               future: loadScanMode(),
               builder: (context, snapshot) {
-                String scanModeText = "Not set";
+                String scanModeText =
+                    AppLocalizations.of(context)?.notSet ?? "Not set";
 
                 if (snapshot.hasData) {
                   scanModeText = snapshot.data == true
-                      ? "Camera scanner"
-                      : "Hardware Scanner";
+                      ? (AppLocalizations.of(context)?.cameraScanner ??
+                          "Camera scanner")
+                      : (AppLocalizations.of(context)?.hardwareScanner ??
+                          "Hardware Scanner");
                 }
                 return ListTile(
                   leading: Icon(Icons.settings, color: Color(0xFF356033)),
-                  title: Text("scan mode: $scanModeText"),
+                  title: Text(
+                      "${AppLocalizations.of(context)?.scanModePrefix ?? 'scan mode:'} $scanModeText"),
                   onTap: () async {
                     bool? useCamera = await showDialog<bool>(
                       context: context,
@@ -336,7 +339,8 @@ class _ItemPageState extends State<ItemPage> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         title: Text(
-                          "select scan mode",
+                          AppLocalizations.of(context)?.selectScanMode ??
+                              "select scan mode",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF356033),
@@ -429,7 +433,7 @@ class _ItemPageState extends State<ItemPage> {
             Divider(),
             ListTile(
               leading: Icon(Icons.person, color: Color(0xFF356033)),
-              title: Text("Profile"),
+              title: Text(AppLocalizations.of(context)?.profile ?? "Profile"),
               subtitle: Text("View and edit your profile"),
               onTap: () {
                 Navigator.pop(context); // Close drawer first

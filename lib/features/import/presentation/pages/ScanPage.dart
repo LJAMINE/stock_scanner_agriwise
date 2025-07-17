@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_stock_scanner/core/util/qteDialog.dart';
 import 'package:flutter_stock_scanner/features/import/domain/entities/item.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/bloc/items/item_bloc.dart';
@@ -57,15 +58,17 @@ class _ScanPageState extends State<ScanPage> {
           _pendingScanCode = null;
         } else if (state is ItemNotFound && _pendingScanCode != null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Item not found: ${state.code}!')),
+            SnackBar(
+                content: Text(
+                    '${AppLocalizations.of(context)?.itemNotFound ?? 'Item not found:'} ${state.code}!')),
           );
           _pendingScanCode = null;
         }
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(
-            "Scan Items",
+          title: Text(
+            AppLocalizations.of(context)?.scanItems ?? "Scan Items",
             style: TextStyle(
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,
@@ -115,7 +118,9 @@ class _ScanPageState extends State<ScanPage> {
               size: 24,
             ),
             label: Text(
-              _scanning ? 'Stop Scan' : 'Start Scan',
+              _scanning
+                  ? (AppLocalizations.of(context)?.stopScan ?? 'Stop Scan')
+                  : (AppLocalizations.of(context)?.startScan ?? 'Start Scan'),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
@@ -240,7 +245,9 @@ class _ScanPageState extends State<ScanPage> {
                                               Expanded(
                                                 flex: 3,
                                                 child: Text(
-                                                  'Code',
+                                                  AppLocalizations.of(context)
+                                                          ?.code ??
+                                                      'Code',
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     color: Color(0xFF356033),
@@ -251,7 +258,9 @@ class _ScanPageState extends State<ScanPage> {
                                               Expanded(
                                                 flex: 4,
                                                 child: Text(
-                                                  'Product Name',
+                                                  AppLocalizations.of(context)
+                                                          ?.label ??
+                                                      'Product Name',
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     color: Color(0xFF356033),
@@ -262,7 +271,9 @@ class _ScanPageState extends State<ScanPage> {
                                               Expanded(
                                                 flex: 2,
                                                 child: Text(
-                                                  'Qty',
+                                                  AppLocalizations.of(context)
+                                                          ?.quantity ??
+                                                      'Qty',
                                                   textAlign: TextAlign.center,
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.bold,
@@ -438,7 +449,9 @@ class _ScanPageState extends State<ScanPage> {
                                             size: 20,
                                           ),
                                           label: Text(
-                                            'Save Batch',
+                                            AppLocalizations.of(context)
+                                                    ?.saveBatch ??
+                                                'Save Batch',
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,
@@ -481,7 +494,9 @@ class _ScanPageState extends State<ScanPage> {
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
                                               SnackBar(
-                                                content: Text(
+                                                content: Text(AppLocalizations
+                                                            .of(context)
+                                                        ?.batchSavedSuccessfully ??
                                                     'Batch saved successfully!'),
                                                 backgroundColor:
                                                     Color(0xFF356033),

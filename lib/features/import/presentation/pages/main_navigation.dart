@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/item_page.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/ScanPage.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/ArchivePage.dart';
@@ -77,7 +78,7 @@ class _MainNavigationState extends State<MainNavigation> {
                 ),
                 child: Icon(Icons.inventory_2_rounded),
               ),
-              label: 'Items',
+              label: AppLocalizations.of(context)?.items ?? 'Items',
             ),
             BottomNavigationBarItem(
               icon: Container(
@@ -90,7 +91,7 @@ class _MainNavigationState extends State<MainNavigation> {
                 ),
                 child: Icon(Icons.qr_code_scanner_rounded),
               ),
-              label: 'Scan',
+              label: AppLocalizations.of(context)?.scan ?? 'Scan',
             ),
             BottomNavigationBarItem(
               icon: Container(
@@ -103,7 +104,7 @@ class _MainNavigationState extends State<MainNavigation> {
                 ),
                 child: Icon(Icons.archive_rounded),
               ),
-              label: 'Archive',
+              label: AppLocalizations.of(context)?.archive ?? 'Archive',
             ),
             BottomNavigationBarItem(
               icon: Container(
@@ -116,7 +117,7 @@ class _MainNavigationState extends State<MainNavigation> {
                 ),
                 child: Icon(Icons.settings_rounded),
               ),
-              label: 'Settings',
+              label: AppLocalizations.of(context)?.settings ?? 'Settings',
             ),
           ],
         ),

@@ -8,5 +8,73 @@
   "hardwareScanner": "ماسح الأجهزة",
   "selectScanMode": "اختر وضع المسح",
   "useCamera": "استخدم الكاميرا",
-  "useHardwareScanner": "استخدم ماسح الأجهزة"
+  "useHardwareScanner": "استخدم ماسح الأجهزة",
+  
+  "scanItems": "مسح العناصر",
+  "startScan": "بدء المسح",
+  "stopScan": "إيقاف المسح",
+  "saveBatch": "حفظ الدفعة",
+  "code": "الكود",
+  "label": "التسمية",
+  "quantity": "الكمية",
+  "modifyQuantity": "تعديل الكمية لـ",
+  "cancel": "إلغاء",
+  "save": "حفظ",
+  "enterQuantity": "أدخل الكمية (مثال: 1.5 أو 1,5)",
+  "enterValidQuantity": "يرجى إدخال رقم موجب صحيح",
+  "batchSavedSuccessfully": "تم حفظ الدفعة بنجاح!",
+  
+  "archiveHistory": "تاريخ الأرشيف",
+  "loadingArchive": "تحميل الأرشيف...",
+  "noArchiveYet": "لا يوجد أرشيف بعد",
+  "archivedBatchesDescription": "ستظهر دفعاتك المؤرشفة هنا بعد مسح وحفظ العناصر",
+  "startScanningTip": "ابدأ المسح لإنشاء دفعتك الأولى",
+  "savedBatches": "دفعات محفوظة",
+  "items": "عناصر",
+  "batch": "دفعة",
+  "exportBatch": "تصدير الدفعة",
+  "viewDetails": "عرض التفاصيل",
+  "batchDetails": "تفاصيل الدفعة",
+  "itemsInBatch": "العناصر في هذه الدفعة:",
+  "exportComplete": "اكتمل التصدير",
+  "exportedSuccessfully": "تم التصدير بنجاح",
+  "openFile": "فتح الملف",
+  "openExcelFile": "فتح ملف Excel",
+  "saveToDownloads": "حفظ في التنزيلات",
+  "chooseLocationToSave": "اختر مكان الحفظ",
+  "share": "مشاركة",
+  "shareWithOthers": "مشاركة مع الآخرين",
+  "selectFolderToSave": "اختر مجلد لحفظ ملف Excel",
+  "fileSavedTo": "تم حفظ الملف في:",
+  "fileSaveCancelled": "تم إلغاء حفظ الملف",
+  "saveFailed": "فشل الحفظ:",
+  "exportFailed": "فشل التصدير:",
+  "shareFailed": "فشلت المشاركة:",
+  "exporting": "جاري التصدير",
+  
+  "importExcel": "استيراد excel أو يدوياً",
+  "chooseExcelFile": "اختر ملف Excel",
+  "itemNotFound": "العنصر غير موجود:",
+  
+  "editItem": "تعديل العنصر",
+  "enterValidLabelAndQuantity": "يرجى إدخال تسمية صحيحة وكمية موجبة",
+  
+  "scan": "مسح",
+  "archive": "أرشيف",
+  "settings": "إعدادات",
+  "addItemManually": "إضافة عنصر يدوياً",
+  "add": "إضافة",
+  "addItemsManually": "إضافة عناصر يدوياً",
+  "importedItems": "تم استيراد {count} عناصر!",
+  "@importedItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profile": "الملف الشخصي",
+  "scanModePrefix": "وضع المسح:",
+  "defaultProfile": "الملف الافتراضي",
+  "profileEmail": "profile@stock.scanner"
 }

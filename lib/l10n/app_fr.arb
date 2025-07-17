@@ -8,5 +8,73 @@
   "hardwareScanner": "Scanner matériel",
   "selectScanMode": "Sélectionner le mode de scan",
   "useCamera": "Utiliser la caméra",
-  "useHardwareScanner": "Utiliser le scanner matériel"
+  "useHardwareScanner": "Utiliser le scanner matériel",
+  
+  "scanItems": "Scanner Articles",
+  "startScan": "Démarrer Scan",
+  "stopScan": "Arrêter Scan",
+  "saveBatch": "Sauvegarder Lot",
+  "code": "Code",
+  "label": "Libellé",
+  "quantity": "Quantité",
+  "modifyQuantity": "modifier la quantité pour",
+  "cancel": "Annuler",
+  "save": "Sauvegarder",
+  "enterQuantity": "Entrez la quantité (ex: 1,5 ou 1.5)",
+  "enterValidQuantity": "Veuillez entrer un nombre positif valide",
+  "batchSavedSuccessfully": "Lot sauvegardé avec succès!",
+  
+  "archiveHistory": "Historique Archives",
+  "loadingArchive": "Chargement Archive...",
+  "noArchiveYet": "Pas d'Archive Encore",
+  "archivedBatchesDescription": "Vos lots archivés apparaîtront ici après avoir scanné et sauvegardé des articles",
+  "startScanningTip": "Commencez à scanner pour créer votre premier lot",
+  "savedBatches": "lots sauvegardés",
+  "items": "articles",
+  "batch": "Lot",
+  "exportBatch": "Exporter Lot",
+  "viewDetails": "Voir Détails",
+  "batchDetails": "Détails du Lot",
+  "itemsInBatch": "Articles dans ce lot:",
+  "exportComplete": "Export Terminé",
+  "exportedSuccessfully": "exporté avec succès",
+  "openFile": "Ouvrir Fichier",
+  "openExcelFile": "Ouvrir le fichier Excel",
+  "saveToDownloads": "Sauvegarder dans Téléchargements",
+  "chooseLocationToSave": "Choisir l'emplacement de sauvegarde",
+  "share": "Partager",
+  "shareWithOthers": "Partager avec d'autres",
+  "selectFolderToSave": "Sélectionner le dossier pour sauvegarder le fichier Excel",
+  "fileSavedTo": "Fichier sauvegardé dans:",
+  "fileSaveCancelled": "Sauvegarde du fichier annulée",
+  "saveFailed": "Sauvegarde échouée:",
+  "exportFailed": "Export échoué:",
+  "shareFailed": "Partage échoué:",
+  "exporting": "Export en cours",
+  
+  "importExcel": "importer excel ou manuellement",
+  "chooseExcelFile": "Choisir Fichier Excel",
+  "itemNotFound": "Article non trouvé:",
+  
+  "editItem": "Modifier Article",
+  "enterValidLabelAndQuantity": "Veuillez entrer un libellé valide et une quantité positive",
+  
+  "scan": "Scan",
+  "archive": "Archive",
+  "settings": "Paramètres",
+  "addItemManually": "Ajouter un article manuellement",
+  "add": "Ajouter",
+  "addItemsManually": "Ajouter des articles manuellement",
+  "importedItems": "{count} articles importés!",
+  "@importedItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profile": "Profil",
+  "scanModePrefix": "mode de scan:",
+  "defaultProfile": "Profil par défaut",
+  "profileEmail": "profil@stock.scanner"
 }
