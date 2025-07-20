@@ -145,8 +145,7 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
                         ),
                         SizedBox(height: 24),
                         Text(
-                          AppLocalizations.of(context)?.loadingArchive ??
-                              'Loading Archive...',
+                          AppLocalizations.of(context)?.loadingArchive ?? 'Loading Archive...',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -179,8 +178,7 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
                         ),
                         SizedBox(height: 24),
                         Text(
-                          AppLocalizations.of(context)?.noArchiveYet ??
-                              'No Archive Yet',
+                          AppLocalizations.of(context)?.noArchiveYet ?? 'No Archive Yet',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -189,9 +187,7 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
                         ),
                         SizedBox(height: 12),
                         Text(
-                          AppLocalizations.of(context)
-                                  ?.archivedBatchesDescription ??
-                              'Your archived batches will appear here after scanning and saving items',
+                          AppLocalizations.of(context)?.archivedBatchesDescription ?? 'Your archived batches will appear here after scanning and saving items',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 16,
@@ -222,9 +218,7 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
                               ),
                               SizedBox(width: 8),
                               Text(
-                                AppLocalizations.of(context)
-                                        ?.startScanningTip ??
-                                    'Start scanning to create your first batch',
+                                AppLocalizations.of(context)?.startScanningTip ?? 'Start scanning to create your first batch',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Color(0xFF356033),
@@ -283,23 +277,21 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
                           SizedBox(width: 12),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                AppLocalizations.of(context)?.archiveHistory ??
-                                    'Archive History',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                            children: [                            Text(
+                              AppLocalizations.of(context)?.archiveHistory ?? 'Archive History',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
-                              Text(
-                                '${batches.length} ${AppLocalizations.of(context)?.savedBatches ?? 'saved batches'}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white.withOpacity(0.8),
-                                ),
+                            ),
+                            Text(
+                              '${batches.length} ${AppLocalizations.of(context)?.savedBatches ?? 'saved batches'}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white.withOpacity(0.8),
                               ),
+                            ),
                             ],
                           ),
                           Spacer(),
@@ -452,10 +444,7 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
                                               onPressed: () =>
                                                   _exportBatchToExcel(
                                                       batch, batchNumber),
-                                              tooltip:
-                                                  AppLocalizations.of(context)
-                                                          ?.exportBatch ??
-                                                      'Export Batch',
+                                              tooltip: AppLocalizations.of(context)?.exportBatch ?? 'Export Batch',
                                               padding: EdgeInsets.all(8),
                                               constraints: BoxConstraints(
                                                 minWidth: 36,
@@ -480,10 +469,7 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
                                               onPressed: () =>
                                                   _showBatchDetails(
                                                       context, batch),
-                                              tooltip:
-                                                  AppLocalizations.of(context)
-                                                          ?.viewDetails ??
-                                                      'View Details',
+                                              tooltip: AppLocalizations.of(context)?.viewDetails ?? 'View Details',
                                               padding: EdgeInsets.all(8),
                                               constraints: BoxConstraints(
                                                 minWidth: 36,
@@ -610,8 +596,7 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              '${AppLocalizations.of(context)?.exportFailed ?? 'Export failed:'} $e'),
+          content: Text('${AppLocalizations.of(context)?.exportFailed ?? 'Export failed:'} $e'),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -672,8 +657,7 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            AppLocalizations.of(context)?.exportComplete ??
-                                'Export Complete',
+                            AppLocalizations.of(context)?.exportComplete ?? 'Export Complete',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -701,10 +685,8 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
                   children: [
                     _buildActionButton(
                       icon: Icons.open_in_new,
-                      title:
-                          AppLocalizations.of(context)?.openFile ?? 'Open File',
-                      subtitle: AppLocalizations.of(context)?.openExcelFile ??
-                          'Open the Excel file',
+                      title: AppLocalizations.of(context)?.openFile ?? 'Open File',
+                      subtitle: AppLocalizations.of(context)?.openExcelFile ?? 'Open the Excel file',
                       onTap: () {
                         Navigator.pop(context);
                         OpenFilex.open(filePath);
@@ -713,11 +695,8 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
                     SizedBox(height: 12),
                     _buildActionButton(
                       icon: Icons.folder_open,
-                      title: AppLocalizations.of(context)?.saveToDownloads ??
-                          'Save to Downloads',
-                      subtitle:
-                          AppLocalizations.of(context)?.chooseLocationToSave ??
-                              'Choose location to save',
+                      title: AppLocalizations.of(context)?.saveToDownloads ?? 'Save to Downloads',
+                      subtitle: AppLocalizations.of(context)?.chooseLocationToSave ?? 'Choose location to save',
                       onTap: () async {
                         Navigator.pop(context);
                         await _saveToCustomLocation(filePath);
@@ -727,8 +706,7 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
                     _buildActionButton(
                       icon: Icons.share,
                       title: AppLocalizations.of(context)?.share ?? 'Share',
-                      subtitle: AppLocalizations.of(context)?.shareWithOthers ??
-                          'Share with others',
+                      subtitle: AppLocalizations.of(context)?.shareWithOthers ?? 'Share with others',
                       onTap: () async {
                         Navigator.pop(context);
                         try {
@@ -739,9 +717,7 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
                           );
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text(
-                                    '${AppLocalizations.of(context)?.shareFailed ?? 'Share failed:'} $e')),
+                            SnackBar(content: Text('${AppLocalizations.of(context)?.shareFailed ?? 'Share failed:'} $e')),
                           );
                         }
                       },
@@ -797,8 +773,7 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
   Future<void> _saveToCustomLocation(String sourcePath) async {
     try {
       String? pickedDir = await FilePicker.platform.getDirectoryPath(
-        dialogTitle: AppLocalizations.of(context)?.selectFolderToSave ??
-            'Select folder to save Excel file',
+        dialogTitle: AppLocalizations.of(context)?.selectFolderToSave ?? 'Select folder to save Excel file',
       );
       if (pickedDir != null) {
         final fileName = sourcePath.split('/').last;
@@ -809,8 +784,7 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
         await destFile.writeAsBytes(bytes);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-                '${AppLocalizations.of(context)?.fileSavedTo ?? 'File saved to:'} $destPath'),
+            content: Text('${AppLocalizations.of(context)?.fileSavedTo ?? 'File saved to:'} $destPath'),
             backgroundColor: Color(0xFF356033),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -821,8 +795,7 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)?.fileSaveCancelled ??
-                'File save cancelled'),
+            content: Text(AppLocalizations.of(context)?.fileSaveCancelled ?? 'File save cancelled'),
             backgroundColor: Colors.orange,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -834,8 +807,7 @@ class _ArchivePageState extends State<ArchivePage> with WidgetsBindingObserver {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              '${AppLocalizations.of(context)?.saveFailed ?? 'Save failed:'} $e'),
+          content: Text('${AppLocalizations.of(context)?.saveFailed ?? 'Save failed:'} $e'),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -912,8 +884,7 @@ class _BatchDetailSheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          AppLocalizations.of(context)?.batchDetails ??
-                              'Batch Details',
+                          AppLocalizations.of(context)?.batchDetails ?? 'Batch Details',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -945,8 +916,7 @@ class _BatchDetailSheet extends StatelessWidget {
                         Navigator.pop(context); // Close the sheet first
                         onExport?.call(batch); // Call the export callback
                       },
-                      tooltip: AppLocalizations.of(context)?.exportBatch ??
-                          'Export Batch',
+                      tooltip: AppLocalizations.of(context)?.exportBatch ?? 'Export Batch',
                     ),
                   ),
                 ],
@@ -961,8 +931,7 @@ class _BatchDetailSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppLocalizations.of(context)?.itemsInBatch ??
-                        'Items in this batch:',
+                    AppLocalizations.of(context)?.itemsInBatch ?? 'Items in this batch:',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -1044,7 +1013,7 @@ class _BatchDetailSheet extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
-                                  '${AppLocalizations.of(context)?.quantity ?? 'Qty'}: ${item.quantity == item.quantity.toInt() ? item.quantity.toInt() : item.quantity}',
+                                  'Qty: ${item.quantity == item.quantity.toInt() ? item.quantity.toInt() : item.quantity}',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,

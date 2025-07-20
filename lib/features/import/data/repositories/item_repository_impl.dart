@@ -22,7 +22,8 @@ class ItemRepositoryImpl implements ItemRepository {
               label: item.label,
               description: item.description,
               date: item.date,
-              quantity: item.quantity),
+              quantity: item.quantity,
+              imageBase64: item.imageBase64),
         )
         .toList();
 
