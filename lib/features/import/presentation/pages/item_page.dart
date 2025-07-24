@@ -189,10 +189,71 @@ class _ItemPageState extends State<ItemPage> {
     }
   }
 
+  // Generate a suggested code based on existing items
+  String _generateSuggestedCode() {
+    final state = context.read<ItemBloc>().state;
+    if (state is ItemsLoaded) {
+      final items = state.items;
+      if (items.isEmpty) {
+        return "ITEM001";
+      }
+
+      // Try to detect existing pattern
+      final codes = items.map((item) => item.code).toList();
+
+      // Strategy 1: Check for pure numeric codes
+      final numericCodes = codes
+          .where((code) => RegExp(r'^\d+$').hasMatch(code))
+          .map((code) => int.tryParse(code))
+          .where((num) => num != null)
+          .cast<int>()
+          .toList();
+
+      if (numericCodes.isNotEmpty) {
+        numericCodes.sort();
+        return (numericCodes.last + 1).toString();
+      }
+
+      // Strategy 2: Check for prefixed numeric codes (e.g., ITEM001, PROD123)
+      final prefixPattern = RegExp(r'^([A-Za-z]+)(\d+)$');
+      Map<String, List<int>> prefixGroups = {};
+
+      for (final code in codes) {
+        final match = prefixPattern.firstMatch(code);
+        if (match != null) {
+          final prefix = match.group(1)!;
+          final number = int.tryParse(match.group(2)!);
+          if (number != null) {
+            prefixGroups.putIfAbsent(prefix, () => []).add(number);
+          }
+        }
+      }
+
+      if (prefixGroups.isNotEmpty) {
+        // Use the most common prefix
+        final mostCommonPrefix = prefixGroups.entries
+            .reduce((a, b) => a.value.length > b.value.length ? a : b);
+
+        final maxNumber =
+            mostCommonPrefix.value.reduce((a, b) => a > b ? a : b);
+        final nextNumber = maxNumber + 1;
+        return "${mostCommonPrefix.key}${nextNumber.toString().padLeft(3, '0')}";
+      }
+
+      // Strategy 3: Fallback - use ITEM prefix with count
+      return "ITEM${(items.length + 1).toString().padLeft(3, '0')}";
+    }
+
+    return "ITEM001";
+  }
+
   void _showManualAddDialog(BuildContext context) {
     final codeController = TextEditingController();
     final labelController = TextEditingController();
     String? selectedImageBase64;
+
+    // Generate and set suggested code
+    codeController.text = _generateSuggestedCode();
 
     showDialog(
       context: context,
@@ -209,9 +270,26 @@ class _ItemPageState extends State<ItemPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextField(
-                    controller: codeController,
-                    decoration: const InputDecoration(labelText: "Code"),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: codeController,
+                          decoration: InputDecoration(
+                            labelText: "Code",
+                            hintText: "Auto-suggested or enter manually",
+                            suffixIcon: IconButton(
+                              icon:
+                                  Icon(Icons.refresh, color: Color(0xFF356033)),
+                              onPressed: () {
+                                codeController.text = _generateSuggestedCode();
+                              },
+                              tooltip: "Generate new code suggestion",
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 16),
                   TextField(

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_stock_scanner/features/import/presentation/pages/ScanPage_new.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/item_page.dart';
-import 'package:flutter_stock_scanner/features/import/presentation/pages/ScanPage.dart';
+// import 'package:flutter_stock_scanner/features/import/presentation/pages/ScanPage.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/ArchivePage.dart';
 import 'package:flutter_stock_scanner/features/import/presentation/pages/ParametrePage.dart';
 
