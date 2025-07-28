@@ -25,12 +25,19 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
   final TextEditingController _hardwareScanController = TextEditingController();
   final FocusNode _hardwareScanFocus = FocusNode();
 
+  // Search functionality
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocus = FocusNode();
+  String _searchQuery = '';
+  List<Item> _filteredItems = [];
+
   @override
   void initState() {
     super.initState();
     scannerController = MobileScannerController();
     WidgetsBinding.instance.addObserver(this);
     _loadScanMode();
+    _filteredItems = scannedItems; // Initialize filtered items
   }
 
   @override
@@ -64,12 +71,75 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     }
   }
 
+  // Search functionality methods
+  void _filterItems(String query) {
+    setState(() {
+      _searchQuery = query;
+      if (query.isEmpty) {
+        _filteredItems = List.from(scannedItems);
+      } else {
+        _filteredItems = scannedItems.where((item) {
+          final codeMatches =
+              item.code.toLowerCase().contains(query.toLowerCase());
+          final labelMatches =
+              item.label.toLowerCase().contains(query.toLowerCase());
+          return codeMatches || labelMatches;
+        }).toList();
+      }
+    });
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    _filterItems('');
+    _searchFocus.unfocus();
+  }
+
+  void _updateFilteredItems() {
+    setState(() {
+      _filteredItems = List.from(scannedItems);
+    });
+    // Re-apply current search if any
+    if (_searchQuery.isNotEmpty) {
+      _filterItems(_searchQuery);
+    }
+  }
+
+  Future<void> _editItemQuantity(Item item) async {
+    final newQty = await showDialog<double>(
+      context: context,
+      builder: (ctx) => QtyDialog(
+        initialQty: item.quantity,
+        label: item.label,
+      ),
+    );
+
+    if (newQty != null) {
+      setState(() {
+        final idx = scannedItems.indexWhere((i) => i.code == item.code);
+        if (idx != -1) {
+          scannedItems[idx] = Item(
+            code: item.code,
+            label: item.label,
+            description: item.description,
+            date: item.date,
+            quantity: newQty,
+            imageBase64: item.imageBase64,
+          );
+        }
+        _updateFilteredItems();
+      });
+    }
+  }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     scannerController?.dispose();
     _hardwareScanController.dispose();
     _hardwareScanFocus.dispose();
+    _searchController.dispose();
+    _searchFocus.dispose();
     super.dispose();
   }
 
@@ -142,10 +212,13 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
           date: DateTime.now(),
         ));
 
-    // Clear scanned items
+    // Clear scanned items and search
     setState(() {
       scannedItems.clear();
+      _filteredItems.clear();
+      _searchQuery = '';
     });
+    _searchController.clear();
 
     // Stop scanning
     _stopScanning();
@@ -210,6 +283,8 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                   scannedItems.add(updated);
                 }
               });
+              // Update filtered items after adding new item
+              _updateFilteredItems();
             }
             _pendingScanCode = null;
           } else if (state is ItemNotFound && _pendingScanCode != null) {
@@ -321,7 +396,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                     ),
                     child: Column(
                       children: [
-                        // Table Header with Count
+                        // Table Header with Count and Search
                         Container(
                           padding: EdgeInsets.all(16),
                           decoration: BoxDecoration(
@@ -331,40 +406,100 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                               topRight: Radius.circular(16),
                             ),
                           ),
-                          child: Row(
+                          child: Column(
                             children: [
-                              Icon(
-                                Icons.inventory_2_outlined,
-                                color: Colors.white,
-                                size: 22,
-                              ),
-                              SizedBox(width: 12),
-                              Text(
-                                'Scanned Items',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                ),
-                              ),
-                              Spacer(),
-                              if (scannedItems.isNotEmpty)
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(15),
+                              // First Row: Title and Count
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.inventory_2_outlined,
+                                    color: Colors.white,
+                                    size: 22,
                                   ),
-                                  child: Text(
-                                    '${scannedItems.length} item${scannedItems.length != 1 ? 's' : ''}',
+                                  SizedBox(width: 12),
+                                  Text(
+                                    'Scanned Items',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  if (scannedItems.isNotEmpty)
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      child: Text(
+                                        _searchQuery.isNotEmpty
+                                            ? '${_filteredItems.length} of ${scannedItems.length}'
+                                            : '${scannedItems.length} item${scannedItems.length != 1 ? 's' : ''}',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+
+                              // Second Row: Search Bar (only show if items exist)
+                              if (scannedItems.isNotEmpty) ...[
+                                SizedBox(height: 12),
+                                Container(
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.15),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.white.withOpacity(0.3),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: TextField(
+                                    controller: _searchController,
+                                    focusNode: _searchFocus,
+                                    onChanged: _filterItems,
                                     style: TextStyle(
                                       color: Colors.white,
-                                      fontWeight: FontWeight.bold,
                                       fontSize: 14,
+                                    ),
+                                    decoration: InputDecoration(
+                                      hintText: 'Search by code or name...',
+                                      hintStyle: TextStyle(
+                                        color: Colors.white.withOpacity(0.7),
+                                        fontSize: 14,
+                                      ),
+                                      prefixIcon: Icon(
+                                        Icons.search,
+                                        color: Colors.white.withOpacity(0.8),
+                                        size: 20,
+                                      ),
+                                      suffixIcon: _searchQuery.isNotEmpty
+                                          ? IconButton(
+                                              icon: Icon(
+                                                Icons.clear,
+                                                color: Colors.white
+                                                    .withOpacity(0.8),
+                                                size: 20,
+                                              ),
+                                              onPressed: _clearSearch,
+                                            )
+                                          : null,
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 10,
+                                      ),
                                     ),
                                   ),
                                 ),
+                              ],
                             ],
                           ),
                         ),
@@ -406,108 +541,163 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                                     ],
                                   ),
                                 )
-                              : ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  itemCount: scannedItems.length,
-                                  itemBuilder: (context, index) {
-                                    final item = scannedItems[index];
-                                    final isEven = index % 2 == 0;
-
-                                    return Container(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 12),
-                                      decoration: BoxDecoration(
-                                        color: isEven
-                                            ? Colors.white
-                                            : Color(0xFF356033)
-                                                .withOpacity(0.03),
-                                        border: Border(
-                                          bottom: BorderSide(
-                                            color: Color(0xFF356033)
-                                                .withOpacity(0.1),
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                      ),
-                                      child: Row(
+                              : _filteredItems.isEmpty &&
+                                      _searchQuery.isNotEmpty
+                                  ? Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
-                                          // Code Column
-                                          Expanded(
-                                            flex: 3,
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 8, horizontal: 12),
-                                              decoration: BoxDecoration(
-                                                color: Color(0xFF356033)
-                                                    .withOpacity(0.1),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              child: Text(
-                                                item.code,
-                                                style: TextStyle(
-                                                  fontFamily: 'monospace',
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Color(0xFF356033),
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
+                                          Icon(
+                                            Icons.search_off,
+                                            size: 80,
+                                            color: Colors.grey[300],
+                                          ),
+                                          SizedBox(height: 16),
+                                          Text(
+                                            'No items match your search',
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
-                                          SizedBox(width: 12),
-
-                                          // Product Name Column
-                                          Expanded(
-                                            flex: 5,
-                                            child: Text(
-                                              item.label,
-                                              style: TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.grey[800],
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 2,
+                                          SizedBox(height: 8),
+                                          Text(
+                                            'Try searching with different terms',
+                                            style: TextStyle(
+                                              color: Colors.grey[500],
+                                              fontSize: 14,
                                             ),
                                           ),
-                                          SizedBox(width: 12),
-
-                                          // Quantity Column
-                                          Expanded(
-                                            flex: 2,
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 6, horizontal: 12),
-                                              decoration: BoxDecoration(
-                                                gradient: LinearGradient(
-                                                  colors: [
-                                                    Color(0xFF356033),
-                                                    Color(0xFF2D5129),
-                                                  ],
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                              ),
-                                              child: Text(
-                                                item.quantity ==
-                                                        item.quantity.toInt()
-                                                    ? '${item.quantity.toInt()}'
-                                                    : '${item.quantity}',
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
+                                          SizedBox(height: 16),
+                                          ElevatedButton(
+                                            onPressed: _clearSearch,
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  Color(0xFF356033),
+                                              foregroundColor: Colors.white,
                                             ),
+                                            child: Text('Clear Search'),
                                           ),
                                         ],
                                       ),
-                                    );
-                                  },
-                                ),
+                                    )
+                                  : ListView.builder(
+                                      padding: EdgeInsets.zero,
+                                      itemCount: _filteredItems.length,
+                                      itemBuilder: (context, index) {
+                                        final item = _filteredItems[index];
+                                        final isEven = index % 2 == 0;
+
+                                        return InkWell(
+                                          onTap: () => _editItemQuantity(item),
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 12),
+                                            decoration: BoxDecoration(
+                                              color: isEven
+                                                  ? Colors.white
+                                                  : Color(0xFF356033)
+                                                      .withOpacity(0.03),
+                                              border: Border(
+                                                bottom: BorderSide(
+                                                  color: Color(0xFF356033)
+                                                      .withOpacity(0.1),
+                                                  width: 0.5,
+                                                ),
+                                              ),
+                                            ),
+                                          child: Row(
+                                            children: [
+                                              // Code Column
+                                              Expanded(
+                                                flex: 3,
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 8,
+                                                      horizontal: 12),
+                                                  decoration: BoxDecoration(
+                                                    color: Color(0xFF356033)
+                                                        .withOpacity(0.1),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                  ),
+                                                  child: Text(
+                                                    item.code,
+                                                    style: TextStyle(
+                                                      fontFamily: 'monospace',
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Color(0xFF356033),
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(width: 12),
+
+                                              // Product Name Column
+                                              Expanded(
+                                                flex: 5,
+                                                child: Text(
+                                                  item.label,
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.grey[800],
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 2,
+                                                ),
+                                              ),
+                                              SizedBox(width: 12),
+
+                                              // Quantity Column
+                                              Expanded(
+                                                flex: 2,
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 6,
+                                                      horizontal: 12),
+                                                  decoration: BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                      colors: [
+                                                        Color(0xFF356033),
+                                                        Color(0xFF2D5129),
+                                                      ],
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15),
+                                                  ),
+                                                  child: Text(
+                                                    item.quantity ==
+                                                            item.quantity
+                                                                .toInt()
+                                                        ? '${item.quantity.toInt()}'
+                                                        : '${item.quantity}',
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                      },
+                                    ),
                         ),
 
                         // Save Button at the Bottom
