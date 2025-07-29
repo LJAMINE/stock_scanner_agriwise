@@ -298,6 +298,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
           }
         },
         child: Scaffold(
+          resizeToAvoidBottomInset: false,
           appBar: AppBar(
             title: Text(
               AppLocalizations.of(context)?.scanItems ?? "Scan Items",
@@ -362,7 +363,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                 // Scanner Section (Camera or Hardware Input)
                 if (_scanning && _useCamera != null)
                   Container(
-                    margin: EdgeInsets.all(16),
+                    margin: EdgeInsets.fromLTRB(16, 8, 16, 4),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
@@ -382,7 +383,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                 // Improved Table Section
                 Expanded(
                   child: Container(
-                    margin: EdgeInsets.all(16),
+                    margin: EdgeInsets.fromLTRB(16, _scanning ? 4 : 16, 16, 16),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
@@ -396,113 +397,155 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                     ),
                     child: Column(
                       children: [
-                        // Table Header with Count and Search
-                        Container(
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Color(0xFF356033),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(16),
-                              topRight: Radius.circular(16),
-                            ),
-                          ),
-                          child: Column(
-                            children: [
-                              // First Row: Title and Count
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.inventory_2_outlined,
-                                    color: Colors.white,
-                                    size: 22,
-                                  ),
-                                  SizedBox(width: 12),
-                                  Text(
-                                    'Scanned Items',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  Spacer(),
-                                  if (scannedItems.isNotEmpty)
-                                    Container(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                      child: Text(
-                                        _searchQuery.isNotEmpty
-                                            ? '${_filteredItems.length} of ${scannedItems.length}'
-                                            : '${scannedItems.length} item${scannedItems.length != 1 ? 's' : ''}',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                ],
+                        // Table Header (only show when items exist)
+                        if (scannedItems.isNotEmpty)
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xFF356033),
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(16),
+                                topRight: Radius.circular(16),
                               ),
-
-                              // Second Row: Search Bar (only show if items exist)
-                              if (scannedItems.isNotEmpty) ...[
-                                SizedBox(height: 12),
+                            ),
+                            child: Column(
+                              children: [
+                                // Search Bar Section
                                 Container(
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.15),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(
-                                      color: Colors.white.withOpacity(0.3),
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: TextField(
-                                    controller: _searchController,
-                                    focusNode: _searchFocus,
-                                    onChanged: _filterItems,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                    ),
-                                    decoration: InputDecoration(
-                                      hintText: 'Search by code or name...',
-                                      hintStyle: TextStyle(
-                                        color: Colors.white.withOpacity(0.7),
-                                        fontSize: 14,
+                                  padding: EdgeInsets.all(_scanning ? 12 : 16),
+                                  child: Container(
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.15),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.3),
+                                        width: 1,
                                       ),
-                                      prefixIcon: Icon(
-                                        Icons.search,
-                                        color: Colors.white.withOpacity(0.8),
-                                        size: 20,
+                                    ),
+                                    child: TextField(
+                                      controller: _searchController,
+                                      focusNode: _searchFocus,
+                                      onChanged: _filterItems,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 15,
                                       ),
-                                      suffixIcon: _searchQuery.isNotEmpty
-                                          ? IconButton(
-                                              icon: Icon(
-                                                Icons.clear,
-                                                color: Colors.white
-                                                    .withOpacity(0.8),
-                                                size: 20,
-                                              ),
-                                              onPressed: _clearSearch,
-                                            )
-                                          : null,
-                                      border: InputBorder.none,
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 10,
+                                      decoration: InputDecoration(
+                                        hintText: 'Search by code or name...',
+                                        hintStyle: TextStyle(
+                                          color: Colors.white.withOpacity(0.7),
+                                          fontSize: 15,
+                                        ),
+                                        prefixIcon: Icon(
+                                          Icons.search,
+                                          color: Colors.white.withOpacity(0.8),
+                                          size: 20,
+                                        ),
+                                        suffixIcon: _searchQuery.isNotEmpty
+                                            ? IconButton(
+                                                icon: Icon(
+                                                  Icons.clear,
+                                                  color: Colors.white
+                                                      .withOpacity(0.8),
+                                                  size: 20,
+                                                ),
+                                                onPressed: _clearSearch,
+                                              )
+                                            : null,
+                                        border: InputBorder.none,
+                                        contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                          vertical: 10,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
+
+                                // Column Headers Row
+                                Container(
+                                  padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
+                                  child: Row(
+                                    children: [
+                                      // Code Header
+                                      Expanded(
+                                        flex: 3,
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 8, horizontal: 12),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.white.withOpacity(0.2),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: Text(
+                                            'Code',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: 12),
+
+                                      // Label Header
+                                      Expanded(
+                                        flex: 5,
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 8, horizontal: 12),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.white.withOpacity(0.2),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: Text(
+                                            'Label',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: 12),
+
+                                      // Quantity Header
+                                      Expanded(
+                                        flex: 2,
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 8, horizontal: 12),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.white.withOpacity(0.2),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: Text(
+                                            'Qty',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
-                            ],
+                            ),
                           ),
-                        ),
 
                         // Clean and Simple Table Content
                         Expanded(
@@ -592,7 +635,8 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
 
                                         return InkWell(
                                           onTap: () => _editItemQuantity(item),
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                           child: Container(
                                             padding: EdgeInsets.symmetric(
                                                 horizontal: 16, vertical: 12),
@@ -609,93 +653,98 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                                                 ),
                                               ),
                                             ),
-                                          child: Row(
-                                            children: [
-                                              // Code Column
-                                              Expanded(
-                                                flex: 3,
-                                                child: Container(
-                                                  padding: EdgeInsets.symmetric(
-                                                      vertical: 8,
-                                                      horizontal: 12),
-                                                  decoration: BoxDecoration(
-                                                    color: Color(0xFF356033)
-                                                        .withOpacity(0.1),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
+                                            child: Row(
+                                              children: [
+                                                // Code Column
+                                                Expanded(
+                                                  flex: 3,
+                                                  child: Container(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 8,
+                                                            horizontal: 12),
+                                                    decoration: BoxDecoration(
+                                                      color: Color(0xFF356033)
+                                                          .withOpacity(0.1),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                    ),
+                                                    child: Text(
+                                                      item.code,
+                                                      style: TextStyle(
+                                                        fontFamily: 'monospace',
+                                                        fontSize: 13,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color:
+                                                            Color(0xFF356033),
+                                                      ),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
                                                   ),
+                                                ),
+                                                SizedBox(width: 12),
+
+                                                // Product Name Column
+                                                Expanded(
+                                                  flex: 5,
                                                   child: Text(
-                                                    item.code,
+                                                    item.label,
                                                     style: TextStyle(
-                                                      fontFamily: 'monospace',
-                                                      fontSize: 13,
+                                                      fontSize: 15,
                                                       fontWeight:
-                                                          FontWeight.w600,
-                                                      color: Color(0xFF356033),
+                                                          FontWeight.w500,
+                                                      color: Colors.grey[800],
                                                     ),
                                                     overflow:
                                                         TextOverflow.ellipsis,
+                                                    maxLines: 2,
                                                   ),
                                                 ),
-                                              ),
-                                              SizedBox(width: 12),
+                                                SizedBox(width: 12),
 
-                                              // Product Name Column
-                                              Expanded(
-                                                flex: 5,
-                                                child: Text(
-                                                  item.label,
-                                                  style: TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Colors.grey[800],
-                                                  ),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  maxLines: 2,
-                                                ),
-                                              ),
-                                              SizedBox(width: 12),
-
-                                              // Quantity Column
-                                              Expanded(
-                                                flex: 2,
-                                                child: Container(
-                                                  padding: EdgeInsets.symmetric(
-                                                      vertical: 6,
-                                                      horizontal: 12),
-                                                  decoration: BoxDecoration(
-                                                    gradient: LinearGradient(
-                                                      colors: [
-                                                        Color(0xFF356033),
-                                                        Color(0xFF2D5129),
-                                                      ],
+                                                // Quantity Column
+                                                Expanded(
+                                                  flex: 2,
+                                                  child: Container(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 6,
+                                                            horizontal: 12),
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        colors: [
+                                                          Color(0xFF356033),
+                                                          Color(0xFF2D5129),
+                                                        ],
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15),
                                                     ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15),
-                                                  ),
-                                                  child: Text(
-                                                    item.quantity ==
-                                                            item.quantity
-                                                                .toInt()
-                                                        ? '${item.quantity.toInt()}'
-                                                        : '${item.quantity}',
-                                                    textAlign: TextAlign.center,
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.white,
-                                                      fontSize: 14,
+                                                    child: Text(
+                                                      item.quantity ==
+                                                              item.quantity
+                                                                  .toInt()
+                                                          ? '${item.quantity.toInt()}'
+                                                          : '${item.quantity}',
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.white,
+                                                        fontSize: 14,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      );
+                                        );
                                       },
                                     ),
                         ),
@@ -763,7 +812,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: SizedBox(
-        height: 150, // Smaller camera area
+        height: 120, // Reduced camera area for more space
         child: MobileScanner(
           controller: scannerController,
           onDetect: (capture) {
@@ -780,7 +829,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
 
   Widget _buildHardwareScanner() {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.all(12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -807,7 +856,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                     BorderSide(color: Theme.of(context).primaryColor, width: 2),
               ),
               contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             ),
             onSubmitted: _onHardwareScanSubmitted,
             onChanged: (value) {
@@ -827,81 +876,81 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
             ),
           ),
 
-          SizedBox(height: 16),
+          SizedBox(height: 8),
 
           // Test buttons for simulating hardware scanner
-          Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey[300]!),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  'Test Hardware Scanner',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey[700],
-                  ),
-                ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          _hardwareScanController.text = '1';
-                          _onHardwareScanSubmitted('1');
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey[300],
-                          foregroundColor: Colors.black87,
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                        ),
-                        child: Text('Scan "1"', style: TextStyle(fontSize: 12)),
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          _hardwareScanController.text = '2';
-                          _onHardwareScanSubmitted('2');
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey[300],
-                          foregroundColor: Colors.black87,
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                        ),
-                        child: Text('Scan "2"', style: TextStyle(fontSize: 12)),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 6),
-                ElevatedButton(
-                  onPressed: () {
-                    final randomCode = DateTime.now()
-                        .millisecondsSinceEpoch
-                        .toString()
-                        .substring(8);
-                    _hardwareScanController.text = randomCode;
-                    _onHardwareScanSubmitted(randomCode);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[400],
-                    foregroundColor: Colors.black87,
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                  ),
-                  child: Text('Simulate Random Barcode',
-                      style: TextStyle(fontSize: 12)),
-                ),
-              ],
-            ),
-          ),
+          // Container(
+          //   padding: EdgeInsets.all(12),
+          //   decoration: BoxDecoration(
+          //     color: Colors.grey[50],
+          //     borderRadius: BorderRadius.circular(8),
+          //     border: Border.all(color: Colors.grey[300]!),
+          //   ),
+          //   child: Column(
+          //     children: [
+          //       Text(
+          //         'Test Hardware Scanner',
+          //         style: TextStyle(
+          //           fontSize: 14,
+          //           fontWeight: FontWeight.w500,
+          //           color: Colors.grey[700],
+          //         ),
+          //       ),
+          //       SizedBox(height: 8),
+          //       Row(
+          //         children: [
+          //           Expanded(
+          //             child: ElevatedButton(
+          //               onPressed: () {
+          //                 _hardwareScanController.text = '1';
+          //                 _onHardwareScanSubmitted('1');
+          //               },
+          //               style: ElevatedButton.styleFrom(
+          //                 backgroundColor: Colors.grey[300],
+          //                 foregroundColor: Colors.black87,
+          //                 padding: EdgeInsets.symmetric(vertical: 8),
+          //               ),
+          //               child: Text('Scan "1"', style: TextStyle(fontSize: 12)),
+          //             ),
+          //           ),
+          //           SizedBox(width: 8),
+          //           Expanded(
+          //             child: ElevatedButton(
+          //               onPressed: () {
+          //                 _hardwareScanController.text = '2';
+          //                 _onHardwareScanSubmitted('2');
+          //               },
+          //               style: ElevatedButton.styleFrom(
+          //                 backgroundColor: Colors.grey[300],
+          //                 foregroundColor: Colors.black87,
+          //                 padding: EdgeInsets.symmetric(vertical: 8),
+          //               ),
+          //               child: Text('Scan "2"', style: TextStyle(fontSize: 12)),
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //       SizedBox(height: 6),
+          //       ElevatedButton(
+          //         onPressed: () {
+          //           final randomCode = DateTime.now()
+          //               .millisecondsSinceEpoch
+          //               .toString()
+          //               .substring(8);
+          //           _hardwareScanController.text = randomCode;
+          //           _onHardwareScanSubmitted(randomCode);
+          //         },
+          //         style: ElevatedButton.styleFrom(
+          //           backgroundColor: Colors.grey[400],
+          //           foregroundColor: Colors.black87,
+          //           padding: EdgeInsets.symmetric(vertical: 8),
+          //         ),
+          //         child: Text('Simulate Random Barcode',
+          //             style: TextStyle(fontSize: 12)),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );
